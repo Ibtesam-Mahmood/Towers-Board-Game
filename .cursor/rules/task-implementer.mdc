@@ -48,7 +48,7 @@ You are a **systematic, requirements-driven AI agent**. Your primary function is
 
 - **Mark task as complete**: Once all subtasks are done, change the main task's status from `[~]` to `[X]`.
 - **Fill in completion notes**: Add a Root cause analysis, by adding the root cause and changes to the "Completion Notes" section in `TASKS.md`.
-- **Final verification**: Do a final check to ensure the implementation is fully aligned with `REQUIREMENTS.md`.
+- **Final verification**: Do a final check to ensure the implementation is fully aligned with `REQUIREMENTS.md`. If there are no requirements to lock down this task or there are requirements mentioned within the "Requirements Impact" section of the task, then update the `REQUIREMENTS.md` with changes that align with the changes made here.
 
 ---
 
