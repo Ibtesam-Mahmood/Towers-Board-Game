@@ -9,6 +9,8 @@ import { GameState, Unit, CombatResult } from "../lib/game-types";
 import { getUnitTemplate } from "../lib/unit-templates";
 import { hexDistance } from "../lib/hex-utils";
 import { calculateAttackerValue, calculateDefenderValue } from "../lib/combat-system";
+import { FloatingCombatOverlay } from "./floating-combat-overlay";
+import { GameLogger } from "../lib/enhanced-game-logic";
 
 interface EnhancedDiceCombatProps {
   attacker: Unit;
@@ -24,6 +26,8 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
   const [defenderRoll, setDefenderRoll] = useState<number>(0);
   const [rollsComplete, setRollsComplete] = useState({ attacker: false, defender: false });
   const [combatResult, setCombatResult] = useState<CombatResult | null>(null);
+  const [showFloatingOverlay, setShowFloatingOverlay] = useState<"rolling" | "result" | null>(null);
+  const [showMainOverlay, setShowMainOverlay] = useState(true);
 
   const attackerTemplate = getUnitTemplate(attacker.templateId);
   const defenderTemplate = getUnitTemplate(defender.templateId);
@@ -36,7 +40,9 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
   const defenderValue = calculateDefenderValue(defender, attacker, gameState, isRanged);
 
   const startCombat = () => {
-    setPhase("rolling");
+    // Immediately hide main overlay and show floating overlay
+    setShowMainOverlay(false);
+    setShowFloatingOverlay("rolling");
     setRollsComplete({ attacker: false, defender: false });
     
     // Auto-roll dice after a short delay for visual effect
@@ -108,7 +114,10 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
       };
 
       setCombatResult(finalResult);
-      setPhase("result");
+      setShowFloatingOverlay("result");
+      
+      // Log combat result
+      GameLogger.log("COMBAT", `Combat resolved: ${attackerTemplate.name} vs ${defenderTemplate.name} - ${result} (${totalAttacker} vs ${totalDefender})`, finalResult);
     }
   }, [rollsComplete, attackerRoll, defenderRoll, attackerValue, defenderValue, attacker.id, defender.id, attackerTemplate.id]);
 
@@ -118,27 +127,36 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
     }
   };
 
+  const handleFloatingOverlayComplete = () => {
+    setShowFloatingOverlay(null);
+    // Apply combat results and close the entire combat system
+    if (combatResult) {
+      onCombatComplete(combatResult);
+    }
+  };
+
   return (
-    <div className="relative w-full h-full bg-slate-800/95 backdrop-blur-md border border-slate-600 rounded-lg shadow-2xl flex flex-col">
-      {/* Close Button - Small X in top left */}
-      <button
-        onClick={onCancel}
-        className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full bg-slate-700/80 hover:bg-slate-600/80 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
-        title="Close combat menu"
-      >
-        ✕
-      </button>
+    <>
+      {/* Main Combat Overlay - Only show when showMainOverlay is true */}
+      {showMainOverlay && (
+        <div className="relative w-full h-full bg-slate-800/95 backdrop-blur-md border border-slate-600 rounded-lg shadow-2xl flex flex-col">
+          {/* Close Button - Small X in top left */}
+          <button
+            onClick={onCancel}
+            className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full bg-slate-700/80 hover:bg-slate-600/80 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
+            title="Close combat menu"
+          >
+            ✕
+          </button>
 
-      {/* Header */}
-      <div className="flex-shrink-0 pt-8 pb-3 px-6">
-        <h2 className="text-amber-400 text-center text-2xl font-bold">⚔️ Combat Resolution</h2>
-        <p className="text-slate-300 text-sm text-center">{isRanged ? "🏹 Ranged Attack" : "⚔️ Melee Combat"}</p>
-      </div>
+          {/* Header */}
+          <div className="flex-shrink-0 pt-8 pb-3 px-6">
+            <h2 className="text-amber-400 text-center text-2xl font-bold">⚔️ Combat Resolution</h2>
+            <p className="text-slate-300 text-sm text-center">{isRanged ? "🏹 Ranged Attack" : "⚔️ Melee Combat"}</p>
+          </div>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-20 space-y-4">{/* Added bottom padding for floating button */}
-        {phase === "preview" && (
-          <>
+          {/* Scrollable Content - Only show preview phase */}
+          <div className="flex-1 overflow-y-auto px-6 pb-20 space-y-4">{/* Added bottom padding for floating button */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {/* Attacker */}
               <div className="bg-slate-700/50 rounded-lg p-4">
@@ -192,122 +210,31 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
                 </p>
               </div>
             </div>
-          </>
-        )}
-
-        {phase === "rolling" && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-amber-400 mb-4">🎲 Rolling Dice...</h3>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-              {/* Attacker Dice */}
-              <div className="text-center">
-                <h4 className="text-lg font-bold text-blue-400 mb-4">Attacker Roll</h4>
-                <div className="flex justify-center">
-                  {rollsComplete.attacker ? (
-                    <div className="w-16 h-16 bg-red-500 rounded-lg flex items-center justify-center text-3xl font-bold text-white shadow-lg">
-                      {attackerRoll}
-                    </div>
-                  ) : (
-                    <div className="w-16 h-16 bg-red-500 rounded-lg flex items-center justify-center text-3xl font-bold text-white shadow-lg animate-spin">
-                      🎲
-                    </div>
-                  )}
-                </div>
-                <div className="mt-3">
-                  <div className="text-2xl font-bold text-red-400">{attackerValue}</div>
-                  <div className="text-sm text-slate-300">Base Attack</div>
-                </div>
-              </div>
-
-              {/* Defender Dice */}
-              <div className="text-center">
-                <h4 className="text-lg font-bold text-red-400 mb-4">Defender Roll</h4>
-                <div className="flex justify-center">
-                  {rollsComplete.defender ? (
-                    <div className="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center text-3xl font-bold text-white shadow-lg">
-                      {defenderRoll}
-                    </div>
-                  ) : (
-                    <div className="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center text-3xl font-bold text-white shadow-lg animate-spin">
-                      🎲
-                    </div>
-                  )}
-                </div>
-                <div className="mt-3">
-                  <div className="text-2xl font-bold text-green-400">{defenderValue}</div>
-                  <div className="text-sm text-slate-300">Base Defense</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-center text-amber-300">
-              {rollsComplete.attacker && rollsComplete.defender 
-                ? "Dice rolled! Calculating result..." 
-                : "Rolling dice automatically..."
-              }
-            </div>
           </div>
-        )}
 
-        {phase === "result" && combatResult && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h3 className="text-2xl font-bold mb-4">{combatResult.result === "massive-hit" ? "💥 MASSIVE HIT!" : combatResult.result === "hit" ? "🎯 HIT!" : combatResult.result === "miss" ? "❌ MISS!" : "🤝 TIE!"}</h3>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div className="text-center bg-slate-700/50 rounded-lg p-4">
-                <h4 className="text-blue-400 font-bold">Attacker Total</h4>
-                <div className="text-3xl font-bold text-white">
-                  {attackerValue} + {attackerRoll} = {attackerValue + attackerRoll}
-                </div>
-              </div>
-
-              <div className="text-center bg-slate-700/50 rounded-lg p-4">
-                <h4 className="text-red-400 font-bold">Defender Total</h4>
-                <div className="text-3xl font-bold text-white">
-                  {defenderValue} + {defenderRoll} = {defenderValue + defenderRoll}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-amber-900/30 rounded-lg p-4 text-center">
-              <h4 className="text-amber-300 font-bold mb-2">Combat Result</h4>
-              {combatResult.damage > 0 && <div className="text-lg font-bold">{combatResult.result === "miss" ? <span className="text-purple-400">💔 Attacker takes {combatResult.damage} damage!</span> : <span className="text-red-400">💀 Defender takes {combatResult.damage} damage!</span>}</div>}
-              {combatResult.moraleGained > 0 && <div className="text-blue-400 font-bold">😰 Both units gain {combatResult.moraleGained} morale token!</div>}
-              {combatResult.specialEffects.length > 0 && <div className="text-purple-400 mt-2">✨ {combatResult.specialEffects.join(", ")}</div>}
-            </div>
-
-            {/* Continue button moved to floating section for result phase */}
+          {/* Floating Action Button - Only show during preview phase */}
+          <div className="absolute bottom-4 left-4 right-4 z-10">
+            <Button 
+              onClick={startCombat} 
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 text-lg shadow-lg"
+            >
+              ⚔️ ROLL FOR COMBAT!
+            </Button>
           </div>
-        )}
-      </div>
-
-      {/* Floating Action Button */}
-      {phase === "preview" && (
-        <div className="absolute bottom-4 left-4 right-4 z-10">
-          <Button 
-            onClick={startCombat} 
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 text-lg shadow-lg"
-          >
-            ⚔️ ROLL FOR COMBAT!
-          </Button>
         </div>
       )}
 
-      {phase === "result" && combatResult && (
-        <div className="absolute bottom-4 left-4 right-4 z-10">
-          <Button 
-            onClick={completeCombat} 
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 text-lg shadow-lg"
-          >
-            Continue Game
-          </Button>
-        </div>
-      )}
-    </div>
+      {/* Floating Combat Overlay - Shows dice rolling and results */}
+      <FloatingCombatOverlay
+        phase={showFloatingOverlay}
+        attackerRoll={attackerRoll}
+        defenderRoll={defenderRoll}
+        attackerValue={attackerValue}
+        defenderValue={defenderValue}
+        combatResult={combatResult}
+        onComplete={handleFloatingOverlayComplete}
+        autoCloseDelay={3000}
+      />
+    </>
   );
 }

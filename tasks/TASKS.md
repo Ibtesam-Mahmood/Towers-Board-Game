@@ -85,7 +85,7 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 
 - [X] B1 - Combat menu buttons are overflowing outside the menu
 - [X] B2 - Dice should auto roll when you confirm combat
-- [ ] B3 - Combat dice should appear in a small overlay in the corner and should not be obstructive
+- [X] B3 - Combat dice should appear in a small overlay in the corner and should not be obstructive
 - [ ] B4 - Hide button in top right menu should be consistent with other menus
 - [ ] B5 - Settings icon should be visible in top right menu
 - [ ] B6 - Auto-start deploy action when tapping unit in army tab during deployment

@@ -664,9 +664,9 @@ This document contains the comprehensive requirements specification for the TOWE
 
 **STATUS**: Requirements 1.0 through 23.2.5 have been FULLY IMPLEMENTED and are operational in the current system. Requirements 24.0 and 25.0 are NEW requirements added to support enhanced user experience and interface improvements.
 
-**TOTAL REQUIREMENTS**: 315 numbered requirements across 25 major functional areas.
+**TOTAL REQUIREMENTS**: 321 numbered requirements across 25 major functional areas.
 
-**IMPLEMENTATION COVERAGE**: 91% - Requirements 1.0-23.2.5 implemented (287/315). Requirements 24.0-25.0 pending implementation (28 requirements).
+**IMPLEMENTATION COVERAGE**: 92% - Requirements 1.0-23.2.5 and 24.5.1-24.5.13 implemented (300/321). Requirements 24.1-24.4 and 25.0 pending implementation (21 requirements).
 
 **TECHNICAL SCOPE**: 23,000+ lines of TypeScript code across 50+ files with complete type safety and production readiness.
 
@@ -721,6 +721,33 @@ This document contains the comprehensive requirements specification for the TOWE
 **24.4.4** The system SHALL remove redundant UI elements like manual range display buttons when automatic systems are active.
 
 **24.4.5** The system SHALL implement consistent hide/close button behavior across all game menus and dialogs.
+
+### 24.5 Floating Combat Overlay Requirements
+**24.5.1** The system SHALL implement a floating combat overlay positioned in the bottom-right corner of the screen for dice rolling display.
+
+**24.5.2** The system SHALL display combat dice rolling animations in the floating overlay without obstructing the main game view.
+
+**24.5.3** The system SHALL automatically close the floating dice overlay 1 second after dice stop rolling.
+
+**24.5.4** The system SHALL display combat results in a floating overlay that shows for 3 seconds before auto-closing.
+
+**24.5.5** The system SHALL ensure floating overlays are compact and non-intrusive, with maximum width of 320px.
+
+**24.5.6** The system SHALL provide smooth fade-in/fade-out animations for floating overlay appearance and dismissal.
+
+**24.5.7** The system SHALL log all combat results to the GameLogger system for comprehensive game state tracking.
+
+**24.5.8** The system SHALL immediately close the main combat overlay when the "Roll for Combat" button is pressed, without delay.
+
+**24.5.9** The system SHALL transition directly from the main combat preview overlay to the floating dice overlay without intermediate states.
+
+**24.5.10** The system SHALL ensure combat results are properly applied to game units through the onCombatComplete callback after the floating results overlay completes.
+
+**24.5.11** The system SHALL provide click-to-dismiss functionality on the floating results overlay in addition to automatic timeout.
+
+**24.5.12** The system SHALL maintain combat state and result calculation independently of main overlay visibility to ensure proper result application.
+
+**24.5.13** The system SHALL prevent combat cancellation once dice rolling has begun, ensuring all combat resolutions are completed and applied to units.
 
 ## 25.0 INTERACTIVE LEARNING SYSTEM REQUIREMENTS
 
