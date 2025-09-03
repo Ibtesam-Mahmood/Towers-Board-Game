@@ -683,6 +683,10 @@ This document contains the comprehensive requirements specification for the TOWE
 
 **24.1.5** The system SHALL implement menu state persistence maintaining user preferences and last-used configurations.
 
+**24.1.6** The system SHALL implement settings icon visibility in the top right menu providing easy access to game configuration options.
+
+**24.1.7** The system SHALL implement settings panel launching and dismissing functionality allowing users to modify game interface preferences.
+
 ### 24.2 Interactive Tooltip System Requirements
 **24.2.1** The system SHALL implement comprehensive entity tooltips displaying detailed information for all game objects on hover.
 

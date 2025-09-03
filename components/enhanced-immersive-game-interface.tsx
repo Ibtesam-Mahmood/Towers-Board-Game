@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { GameState, HexPosition, Unit } from "../lib/game-types";
 import { HexGrid } from "./hex-grid";
 import { EnhancedDiceCombat } from "./enhanced-dice-combat";
@@ -48,6 +49,7 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
   const [showOverlays, setShowOverlays] = useState(true);
   const [showArmy, setShowArmy] = useState(true);
   const [moveHistory, setMoveHistory] = useState<Array<{ unitId: string; fromPosition: HexPosition; toPosition: HexPosition }>>([]);
+  const [showSettings, setShowSettings] = useState(false);
 
   const currentPlayer = gameState.players[gameState.currentPlayer];
   const otherPlayer = gameState.players[gameState.currentPlayer === "player1" ? "player2" : "player1"];
@@ -596,14 +598,53 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
                   <TooltipContent>Center Map</TooltipContent>
                 </Tooltip>
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button onClick={() => setShowOverlays(!showOverlays)} size="sm" variant="outline" className="border-slate-500 bg-slate-700/50 hover:bg-slate-600/50">
-                      {showOverlays ? <Eye size={16} /> : <EyeOff size={16} />}
+                <Dialog open={showSettings} onOpenChange={setShowSettings}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="border-slate-500 bg-slate-700/50 hover:bg-slate-600/50" title="Game Settings">
+                      <Settings size={16} />
                     </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{showOverlays ? "Hide Overlays" : "Show Overlays"}</TooltipContent>
-                </Tooltip>
+                  </DialogTrigger>
+                  <DialogContent className="bg-slate-800 border-amber-500/30 text-white">
+                    <DialogHeader>
+                      <DialogTitle className="text-amber-400">Game Settings</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium">Show Overlays</label>
+                        <Button 
+                          onClick={() => setShowOverlays(!showOverlays)} 
+                          size="sm" 
+                          variant="outline" 
+                          className="border-slate-500 bg-slate-700/50 hover:bg-slate-600/50"
+                        >
+                          {showOverlays ? <Eye size={16} /> : <EyeOff size={16} />}
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium">Auto Move</label>
+                        <Button 
+                          onClick={() => setAutoMoveEnabled(!autoMoveEnabled)} 
+                          size="sm" 
+                          variant="outline" 
+                          className={`border-slate-500 ${autoMoveEnabled ? 'bg-green-600/50 hover:bg-green-500/50' : 'bg-slate-700/50 hover:bg-slate-600/50'}`}
+                        >
+                          {autoMoveEnabled ? "ON" : "OFF"}
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium">Show Army Panel</label>
+                        <Button 
+                          onClick={() => setShowArmy(!showArmy)} 
+                          size="sm" 
+                          variant="outline" 
+                          className="border-slate-500 bg-slate-700/50 hover:bg-slate-600/50"
+                        >
+                          {showArmy ? "ON" : "OFF"}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
                 {/* Switch Player Button */}
                 {gameState.currentPhase === "deployment" && switchPlayer && (
