@@ -38,6 +38,14 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
   const startCombat = () => {
     setPhase("rolling");
     setRollsComplete({ attacker: false, defender: false });
+    
+    // Auto-roll dice after a short delay for visual effect
+    setTimeout(() => {
+      const attackerRollValue = Math.floor(Math.random() * 6) + 1;
+      const defenderRollValue = Math.floor(Math.random() * 6) + 1;
+      handleAttackerRoll(attackerRollValue);
+      handleDefenderRoll(defenderRollValue);
+    }, 1000);
   };
 
   const handleAttackerRoll = (value: number) => {
@@ -184,8 +192,6 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
                 </p>
               </div>
             </div>
-
-{/* Buttons moved to floating section */}
           </>
         )}
 
@@ -200,7 +206,15 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
               <div className="text-center">
                 <h4 className="text-lg font-bold text-blue-400 mb-4">Attacker Roll</h4>
                 <div className="flex justify-center">
-                  <Dice onRoll={handleAttackerRoll} rollingTime={500} triggers={["click"]} size={60} faceBg="#FF6B6B" />
+                  {rollsComplete.attacker ? (
+                    <div className="w-16 h-16 bg-red-500 rounded-lg flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+                      {attackerRoll}
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-red-500 rounded-lg flex items-center justify-center text-3xl font-bold text-white shadow-lg animate-spin">
+                      🎲
+                    </div>
+                  )}
                 </div>
                 <div className="mt-3">
                   <div className="text-2xl font-bold text-red-400">{attackerValue}</div>
@@ -212,7 +226,15 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
               <div className="text-center">
                 <h4 className="text-lg font-bold text-red-400 mb-4">Defender Roll</h4>
                 <div className="flex justify-center">
-                  <Dice onRoll={handleDefenderRoll} rollingTime={500} triggers={["click"]} size={60} faceBg="#4DABF7" />
+                  {rollsComplete.defender ? (
+                    <div className="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+                      {defenderRoll}
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center text-3xl font-bold text-white shadow-lg animate-spin">
+                      🎲
+                    </div>
+                  )}
                 </div>
                 <div className="mt-3">
                   <div className="text-2xl font-bold text-green-400">{defenderValue}</div>
@@ -221,7 +243,12 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
               </div>
             </div>
 
-            <div className="text-center text-amber-300">Click the dice to roll!</div>
+            <div className="text-center text-amber-300">
+              {rollsComplete.attacker && rollsComplete.defender 
+                ? "Dice rolled! Calculating result..." 
+                : "Rolling dice automatically..."
+              }
+            </div>
           </div>
         )}
 
