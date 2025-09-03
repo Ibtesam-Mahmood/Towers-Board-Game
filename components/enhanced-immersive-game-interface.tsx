@@ -1,26 +1,19 @@
+"use client";
 
-'use client';
-
-import React, { useState, useCallback, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import { GameState, HexPosition, Unit } from '../lib/game-types';
-import { HexGrid } from './hex-grid';
-import { EnhancedDiceCombat } from './enhanced-dice-combat';
-import { getUnitTemplate } from '../lib/unit-templates';
-import { positionToKey } from '../lib/hex-utils';
-import { isInDeploymentZone } from '../lib/game-state-manager';
-import { EnhancedGameManager, GameLogger } from '../lib/enhanced-game-logic';
-import { 
-  Sword, Shield, Heart, Zap, Users, MapPin, Target, Move, 
-  AlertCircle, Info, RotateCcw, Eye, ChevronUp, ChevronDown,
-  Home, Settings, Trophy, Clock, X, Maximize2, Minimize2,
-  Play, SkipForward, RefreshCw, Cpu, ChevronLeft, ChevronRight,
-  EyeOff, List, Activity
-} from 'lucide-react';
+import React, { useState, useCallback, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { GameState, HexPosition, Unit } from "../lib/game-types";
+import { HexGrid } from "./hex-grid";
+import { EnhancedDiceCombat } from "./enhanced-dice-combat";
+import { getUnitTemplate } from "../lib/unit-templates";
+import { positionToKey } from "../lib/hex-utils";
+import { isInDeploymentZone } from "../lib/game-state-manager";
+import { EnhancedGameManager, GameLogger } from "../lib/enhanced-game-logic";
+import { Sword, Shield, Heart, Zap, Users, MapPin, Target, Move, AlertCircle, Info, RotateCcw, Eye, ChevronUp, ChevronDown, Home, Settings, Trophy, Clock, X, Maximize2, Minimize2, Play, SkipForward, RefreshCw, Cpu, ChevronLeft, ChevronRight, EyeOff, List, Activity } from "lucide-react";
 
 interface EnhancedImmersiveGameInterfaceProps {
   gameState: GameState;
@@ -30,24 +23,18 @@ interface EnhancedImmersiveGameInterfaceProps {
   onStartBattle?: () => void;
 }
 
-type ActionMode = 'select' | 'move_attack' | 'deploy';
+type ActionMode = "select" | "move_attack" | "deploy";
 
-export function EnhancedImmersiveGameInterface({ 
-  gameState, 
-  onGameStateChange, 
-  switchPlayer, 
-  readyToStart, 
-  onStartBattle 
-}: EnhancedImmersiveGameInterfaceProps) {
+export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, switchPlayer, readyToStart, onStartBattle }: EnhancedImmersiveGameInterfaceProps) {
   // UI State
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<HexPosition | null>(null);
-  const [actionMode, setActionMode] = useState<ActionMode>('select');
-  const [error, setError] = useState<string>('');
+  const [actionMode, setActionMode] = useState<ActionMode>("select");
+  const [error, setError] = useState<string>("");
   const [showCombatDialog, setShowCombatDialog] = useState(false);
   const [combatTarget, setCombatTarget] = useState<Unit | null>(null);
   const [showAttackRange, setShowAttackRange] = useState(false);
-  
+
   // Enhanced UI State
   const [showTopLeftToolbar, setShowTopLeftToolbar] = useState(true);
   const [showBottomLeftToolbar, setShowBottomLeftToolbar] = useState(true);
@@ -59,34 +46,28 @@ export function EnhancedImmersiveGameInterface({
   const [showDiceAnimation, setShowDiceAnimation] = useState(false);
   const [showOverlays, setShowOverlays] = useState(true);
   const [showArmy, setShowArmy] = useState(true);
-  const [moveHistory, setMoveHistory] = useState<Array<{unitId: string; fromPosition: HexPosition; toPosition: HexPosition}>>([]);
+  const [moveHistory, setMoveHistory] = useState<Array<{ unitId: string; fromPosition: HexPosition; toPosition: HexPosition }>>([]);
 
   const currentPlayer = gameState.players[gameState.currentPlayer];
-  const otherPlayer = gameState.players[gameState.currentPlayer === 'player1' ? 'player2' : 'player1'];
-  
-  const deployedUnits = Object.values(gameState.units).filter(
-    unit => unit.isDeployed && unit.playerId === gameState.currentPlayer && unit.currentHp > 0
-  );
-  const reserveUnits = Object.values(gameState.units).filter(
-    unit => unit.isInReserves && unit.playerId === gameState.currentPlayer && unit.currentHp > 0
-  );
+  const otherPlayer = gameState.players[gameState.currentPlayer === "player1" ? "player2" : "player1"];
+
+  const deployedUnits = Object.values(gameState.units).filter((unit) => unit.isDeployed && unit.playerId === gameState.currentPlayer && unit.currentHp > 0);
+  const reserveUnits = Object.values(gameState.units).filter((unit) => unit.isInReserves && unit.playerId === gameState.currentPlayer && unit.currentHp > 0);
 
   // Check if both players are ready to start battle
   const bothPlayersReady = readyToStart ? readyToStart() : false;
-  
+
   // Hide reserves during battle phase
-  const showReserves = gameState.currentPhase === 'deployment';
+  const showReserves = gameState.currentPhase === "deployment";
 
   // Enhanced task description based on current state
   const getCurrentTaskDescription = () => {
-    if (gameState.currentPhase === 'deployment') {
+    if (gameState.currentPhase === "deployment") {
       if (bothPlayersReady) {
         return '🚀 Both players ready! Click "Start Battle" to begin.';
       }
       if (reserveUnits.length === 0) {
-        const otherPlayerUnits = Object.values(gameState.units).filter(
-          unit => unit.isInReserves && unit.playerId !== gameState.currentPlayer && unit.currentHp > 0
-        );
+        const otherPlayerUnits = Object.values(gameState.units).filter((unit) => unit.isInReserves && unit.playerId !== gameState.currentPlayer && unit.currentHp > 0);
         if (otherPlayerUnits.length > 0) {
           return '⏳ Waiting for other player to deploy units. Click "Switch Player" to let them deploy.';
         }
@@ -96,74 +77,69 @@ export function EnhancedImmersiveGameInterface({
         return `🪖 Click on a deployment zone hex to deploy ${getUnitTemplate(selectedUnit.templateId)?.name}`;
       }
       if (selectedUnit?.isDeployed) {
-        return '♻️ Unit deployed. You can undeploy it or select another unit.';
+        return "♻️ Unit deployed. You can undeploy it or select another unit.";
       }
-      return '🎯 Select a unit from reserves to deploy, or use Auto Deploy';
+      return "🎯 Select a unit from reserves to deploy, or use Auto Deploy";
     }
-    
-    if (gameState.currentPhase === 'battle') {
+
+    if (gameState.currentPhase === "battle") {
       if (gameState.activationsRemaining === 0) {
-        return '⏭️ No activations left. End your turn to continue.';
+        return "⏭️ No activations left. End your turn to continue.";
       }
       if (selectedUnit?.activated) {
-        return '✅ Unit already used this turn. Select another unit or end turn.';
+        return "✅ Unit already used this turn. Select another unit or end turn.";
       }
       if (selectedUnit && !selectedUnit.activated && selectedUnit.isDeployed && selectedUnit.currentHp > 0) {
-        if (actionMode === 'move_attack') {
-          return '🎯 Click empty hex to move, or enemy unit to attack';
+        if (actionMode === "move_attack") {
+          return "🎯 Click empty hex to move, or enemy unit to attack";
         }
         return '⚔️ Unit ready for action. Click "Move & Attack" to begin.';
       }
-      if (deployedUnits.filter(u => !u.activated && u.currentHp > 0).length === 0) {
-        return '😴 All units activated. End turn to continue.';
+      if (deployedUnits.filter((u) => !u.activated && u.currentHp > 0).length === 0) {
+        return "😴 All units activated. End turn to continue.";
       }
-      return '🎮 Select one of your active units to move or attack';
+      return "🎮 Select one of your active units to move or attack";
     }
-    
-    return '🤔 Waiting for action...';
+
+    return "🤔 Waiting for action...";
   };
 
   // Auto-deployment function
   const autoDeployAll = useCallback(() => {
-    if (gameState.currentPhase !== 'deployment') return;
-    
+    if (gameState.currentPhase !== "deployment") return;
+
     try {
       const newState = EnhancedGameManager.autoDeployUnits(gameState.currentPlayer, gameState);
       onGameStateChange(newState);
-      GameLogger.log('DEPLOYMENT', 'Auto-deployed units successfully');
-      setError('Units auto-deployed successfully!');
+      GameLogger.log("DEPLOYMENT", "Auto-deployed units successfully");
+      setError("Units auto-deployed successfully!");
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Auto-deployment failed');
-      GameLogger.log('ERROR', 'Auto-deployment failed', { error });
+      setError(error instanceof Error ? error.message : "Auto-deployment failed");
+      GameLogger.log("ERROR", "Auto-deployment failed", { error });
     }
   }, [gameState, onGameStateChange]);
 
   // Auto AI move function for battle phase
   const performAutoAIMove = useCallback(() => {
-    if (gameState.currentPhase !== 'battle' || gameState.activationsRemaining === 0) return;
-    
+    if (gameState.currentPhase !== "battle" || gameState.activationsRemaining === 0) return;
+
     try {
       // Find first available unit that can act
-      const availableUnits = Object.values(gameState.units).filter(
-        unit => unit.playerId === gameState.currentPlayer && 
-               unit.isDeployed && 
-               unit.currentHp > 0 && 
-               !unit.activated
-      );
-      
+      const availableUnits = Object.values(gameState.units).filter((unit) => unit.playerId === gameState.currentPlayer && unit.isDeployed && unit.currentHp > 0 && !unit.activated);
+
       if (availableUnits.length === 0) {
         // End turn if no units available
         try {
           const newState = EnhancedGameManager.endTurnEnhanced(gameState);
           onGameStateChange(newState);
         } catch (error) {
-          setError('Failed to end turn');
+          setError("Failed to end turn");
         }
         return;
       }
-      
+
       const unit = availableUnits[0];
-      
+
       // Try to attack first, then move
       const attackTargets = EnhancedGameManager.getValidAttackTargets(unit, gameState);
       if (attackTargets.length > 0) {
@@ -172,7 +148,7 @@ export function EnhancedImmersiveGameInterface({
         setShowSideCombat(true);
         return;
       }
-      
+
       // If no attack available, try to move
       const movePositions = EnhancedGameManager.getValidMovementPositions(unit, gameState);
       if (movePositions.length > 0) {
@@ -180,44 +156,43 @@ export function EnhancedImmersiveGameInterface({
         try {
           const fromPosition = unit.position;
           const newState = EnhancedGameManager.moveUnitEnhanced(unit.id, randomPosition, gameState);
-          
+
           if (fromPosition) {
-            setMoveHistory(prev => [...prev, { unitId: unit.id, fromPosition, toPosition: randomPosition }]);
+            setMoveHistory((prev) => [...prev, { unitId: unit.id, fromPosition, toPosition: randomPosition }]);
           }
-          
+
           onGameStateChange(newState);
         } catch (error) {
-          setError('Failed to move unit');
+          setError("Failed to move unit");
         }
         return;
       }
-      
+
       // If unit can't do anything, mark as activated
       const newState = { ...gameState };
       newState.units[unit.id] = { ...unit, activated: true };
       newState.activationsRemaining = Math.max(0, newState.activationsRemaining - 1);
       onGameStateChange(newState);
-      
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Auto move failed');
+      setError(error instanceof Error ? error.message : "Auto move failed");
     }
   }, [gameState, onGameStateChange, setMoveHistory]);
 
   // Victory condition checking with proper game end
   useEffect(() => {
     const victory = EnhancedGameManager.checkVictoryConditions(gameState);
-    if (victory.winner && gameState.currentPhase !== 'match-end') {
+    if (victory.winner && gameState.currentPhase !== "match-end") {
       const newState = { ...gameState };
-      newState.currentPhase = 'match-end';
-      
+      newState.currentPhase = "match-end";
+
       // Award point to winner
-      if (victory.winner === 'player1') {
+      if (victory.winner === "player1") {
         newState.matchScore.player1++;
-      } else if (victory.winner === 'player2') {
+      } else if (victory.winner === "player2") {
         newState.matchScore.player2++;
       }
-      
-      GameLogger.log('STATE_CHANGE', `Game ended: ${victory.winner} wins`, { reason: victory.reason });
+
+      GameLogger.log("STATE_CHANGE", `Game ended: ${victory.winner} wins`, { reason: victory.reason });
       onGameStateChange(newState);
     }
   }, [gameState, onGameStateChange]);
@@ -225,7 +200,7 @@ export function EnhancedImmersiveGameInterface({
   // Clear error after some time
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => setError(''), 5000);
+      const timer = setTimeout(() => setError(""), 5000);
       return () => clearTimeout(timer);
     }
   }, [error]);
@@ -233,17 +208,15 @@ export function EnhancedImmersiveGameInterface({
   // Get valid positions based on current action mode
   const getValidPositions = (): HexPosition[] => {
     if (!selectedUnit) return [];
-    
-    if (actionMode === 'deploy') {
+
+    if (actionMode === "deploy") {
       const validPositions: HexPosition[] = [];
       for (let q = 0; q < gameState.boardSize.width; q++) {
         for (let r = 0; r < gameState.boardSize.height; r++) {
           const position = { q, r };
           const posKey = positionToKey(position);
-          
-          const occupyingUnit = Object.values(gameState.units).find(
-            u => u.position && positionToKey(u.position) === posKey && u.isDeployed && u.currentHp > 0
-          );
+
+          const occupyingUnit = Object.values(gameState.units).find((u) => u.position && positionToKey(u.position) === posKey && u.isDeployed && u.currentHp > 0);
 
           if (!occupyingUnit && isInDeploymentZone(position, selectedUnit.playerId, gameState)) {
             validPositions.push(position);
@@ -253,10 +226,10 @@ export function EnhancedImmersiveGameInterface({
       return validPositions;
     }
 
-    if (actionMode === 'move_attack' && selectedUnit.position && !selectedUnit.activated && gameState.activationsRemaining > 0) {
+    if (actionMode === "move_attack" && selectedUnit.position && !selectedUnit.activated && gameState.activationsRemaining > 0) {
       const movePositions = EnhancedGameManager.getValidMovementPositions(selectedUnit, gameState);
       const attackTargets = EnhancedGameManager.getValidAttackTargets(selectedUnit, gameState);
-      const attackPositions = attackTargets.map(target => target.position).filter(Boolean) as HexPosition[];
+      const attackPositions = attackTargets.map((target) => target.position).filter(Boolean) as HexPosition[];
 
       return [...movePositions, ...attackPositions];
     }
@@ -266,226 +239,238 @@ export function EnhancedImmersiveGameInterface({
 
   const getAttackRangePositions = (): HexPosition[] => {
     if (!selectedUnit || !showAttackRange || !selectedUnit.position || selectedUnit.activated) return [];
-    
+
     const attackTargets = EnhancedGameManager.getValidAttackTargets(selectedUnit, gameState);
-    return attackTargets.map(target => target.position).filter(Boolean) as HexPosition[];
+    return attackTargets.map((target) => target.position).filter(Boolean) as HexPosition[];
   };
 
   const validPositions = getValidPositions();
   const attackRangePositions = getAttackRangePositions();
 
-  const handleHexClick = useCallback((position: HexPosition) => {
-    setError('');
-    GameLogger.log('ACTION', 'Hex clicked', { position, actionMode });
-    
-    const posKey = positionToKey(position);
-    const clickedUnit = Object.values(gameState.units).find(
-      unit => unit.position && positionToKey(unit.position) === posKey && unit.isDeployed && unit.currentHp > 0
-    );
+  const handleHexClick = useCallback(
+    (position: HexPosition) => {
+      setError("");
+      GameLogger.log("ACTION", "Hex clicked", { position, actionMode });
 
-    if (clickedUnit) {
-      if (clickedUnit.playerId === gameState.currentPlayer) {
-        setSelectedUnit(clickedUnit);
-        setSelectedPosition(position);
-        setActionMode('select');
-        setShowAttackRange(false);
-        GameLogger.log('ACTION', 'Selected own unit', { unitId: clickedUnit.id });
-      } else if (actionMode === 'move_attack' && selectedUnit && !selectedUnit.activated && gameState.activationsRemaining > 0) {
-        const validTargets = EnhancedGameManager.getValidAttackTargets(selectedUnit, gameState);
-        const canAttackTarget = validTargets.some(target => target.id === clickedUnit.id);
-        
-        if (canAttackTarget) {
-          setCombatTarget(clickedUnit);
-          setShowSideCombat(true);
-          GameLogger.log('ACTION', 'Initiated combat', { 
-            attackerId: selectedUnit.id, 
-            defenderId: clickedUnit.id 
-          });
+      const posKey = positionToKey(position);
+      const clickedUnit = Object.values(gameState.units).find((unit) => unit.position && positionToKey(unit.position) === posKey && unit.isDeployed && unit.currentHp > 0);
+
+      if (clickedUnit) {
+        if (clickedUnit.playerId === gameState.currentPlayer) {
+          setSelectedUnit(clickedUnit);
+          setSelectedPosition(position);
+          setActionMode("select");
+          setShowAttackRange(false);
+          GameLogger.log("ACTION", "Selected own unit", { unitId: clickedUnit.id });
+        } else if (selectedUnit && !selectedUnit.activated && gameState.activationsRemaining > 0 && gameState.currentPhase === "battle") {
+          // Allow combat if we have a selected unit during battle phase, regardless of action mode
+          const validTargets = EnhancedGameManager.getValidAttackTargets(selectedUnit, gameState);
+          const canAttackTarget = validTargets.some((target) => target.id === clickedUnit.id);
+
+          if (canAttackTarget) {
+            setCombatTarget(clickedUnit);
+            setShowSideCombat(true);
+            GameLogger.log("ACTION", "Initiated combat", {
+              attackerId: selectedUnit.id,
+              defenderId: clickedUnit.id,
+            });
+          } else {
+            setError("Enemy unit is out of attack range or you cannot attack this turn");
+          }
         } else {
-          setError('Enemy unit is out of attack range or you cannot attack this turn');
+          // View enemy unit info
+          setSelectedUnit(clickedUnit);
+          setSelectedPosition(position);
+          setActionMode("select");
+          setShowAttackRange(false);
+          GameLogger.log("ACTION", "Viewing enemy unit", { unitId: clickedUnit.id });
         }
       } else {
-        // View enemy unit info
-        setSelectedUnit(clickedUnit);
-        setSelectedPosition(position);
-        setActionMode('select');
-        setShowAttackRange(false);
-        GameLogger.log('ACTION', 'Viewing enemy unit', { unitId: clickedUnit.id });
+        // Empty hex clicked
+        if (actionMode === "deploy" && selectedUnit?.isInReserves) {
+          handleDeploy(selectedUnit.id, position);
+        } else if (actionMode === "move_attack" && selectedUnit?.position && !selectedUnit.activated && gameState.activationsRemaining > 0) {
+          handleMove(selectedUnit.id, position);
+        } else {
+          setSelectedPosition(position);
+        }
       }
-    } else {
-      // Empty hex clicked
-      if (actionMode === 'deploy' && selectedUnit?.isInReserves) {
-        handleDeploy(selectedUnit.id, position);
-      } else if (actionMode === 'move_attack' && selectedUnit?.position && !selectedUnit.activated && gameState.activationsRemaining > 0) {
-        handleMove(selectedUnit.id, position);
-      } else {
-        setSelectedPosition(position);
+    },
+    [gameState, selectedUnit, actionMode]
+  );
+
+  const handleDeploy = useCallback(
+    (unitId: string, position: HexPosition) => {
+      try {
+        const newState = EnhancedGameManager.deployUnitEnhanced(unitId, position, gameState);
+        onGameStateChange(newState);
+        setSelectedUnit(null);
+        setActionMode("select");
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to deploy unit");
       }
-    }
-  }, [gameState, selectedUnit, actionMode]);
+    },
+    [gameState, onGameStateChange]
+  );
 
-  const handleDeploy = useCallback((unitId: string, position: HexPosition) => {
-    try {
-      const newState = EnhancedGameManager.deployUnitEnhanced(unitId, position, gameState);
-      onGameStateChange(newState);
-      setSelectedUnit(null);
-      setActionMode('select');
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to deploy unit');
-    }
-  }, [gameState, onGameStateChange]);
-
-  const handleUndeploy = useCallback((unitId: string) => {
-    try {
-      const newState = EnhancedGameManager.undeployUnit(unitId, gameState);
-      onGameStateChange(newState);
-      setSelectedUnit(null);
-      setActionMode('select');
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to undeploy unit');
-    }
-  }, [gameState, onGameStateChange]);
-
-  const handleMove = useCallback((unitId: string, position: HexPosition) => {
-    try {
-      const unit = gameState.units[unitId];
-      if (!unit || !unit.position) {
-        throw new Error('Unit not found or not deployed');
+  const handleUndeploy = useCallback(
+    (unitId: string) => {
+      try {
+        const newState = EnhancedGameManager.undeployUnit(unitId, gameState);
+        onGameStateChange(newState);
+        setSelectedUnit(null);
+        setActionMode("select");
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to undeploy unit");
       }
-      
-      const fromPosition = unit.position;
-      const newState = EnhancedGameManager.moveUnitEnhanced(unitId, position, gameState);
-      
-      // Track movement for undo functionality
-      setMoveHistory(prev => [...prev, { unitId, fromPosition, toPosition: position }]);
-      
-      onGameStateChange(newState);
-      setSelectedUnit(null);
-      setActionMode('select');
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to move unit');
-    }
-  }, [gameState, onGameStateChange]);
+    },
+    [gameState, onGameStateChange]
+  );
+
+  const handleMove = useCallback(
+    (unitId: string, position: HexPosition) => {
+      try {
+        const unit = gameState.units[unitId];
+        if (!unit || !unit.position) {
+          throw new Error("Unit not found or not deployed");
+        }
+
+        const fromPosition = unit.position;
+        const newState = EnhancedGameManager.moveUnitEnhanced(unitId, position, gameState);
+
+        // Track movement for undo functionality
+        setMoveHistory((prev) => [...prev, { unitId, fromPosition, toPosition: position }]);
+
+        onGameStateChange(newState);
+        setSelectedUnit(null);
+        setActionMode("select");
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Failed to move unit");
+      }
+    },
+    [gameState, onGameStateChange]
+  );
 
   // Undo last movement action
   const undoLastMove = useCallback(() => {
     if (moveHistory.length === 0) {
-      setError('No moves to undo');
+      setError("No moves to undo");
       return;
     }
-    
+
     const lastMove = moveHistory[moveHistory.length - 1];
     const unit = gameState.units[lastMove.unitId];
-    
+
     if (!unit || !unit.activated) {
-      setError('Cannot undo this move (unit already acted further)');
+      setError("Cannot undo this move (unit already acted further)");
       return;
     }
-    
+
     try {
       // Create new state with undone move
       const newState = { ...gameState };
       newState.units[lastMove.unitId] = {
         ...unit,
         position: lastMove.fromPosition,
-        activated: false // Allow unit to act again
+        activated: false, // Allow unit to act again
       };
-      
+
       // Restore activation
       newState.activationsRemaining = Math.min(3, newState.activationsRemaining + 1);
-      
+
       // Remove from move history
-      setMoveHistory(prev => prev.slice(0, -1));
-      
+      setMoveHistory((prev) => prev.slice(0, -1));
+
       onGameStateChange(newState);
       setSelectedUnit(null);
-      setActionMode('select');
-      GameLogger.log('ACTION', 'Move undone', { unitId: lastMove.unitId });
-      
+      setActionMode("select");
+      GameLogger.log("ACTION", "Move undone", { unitId: lastMove.unitId });
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to undo move');
+      setError(error instanceof Error ? error.message : "Failed to undo move");
     }
   }, [gameState, moveHistory, onGameStateChange]);
 
-  const handleCombatComplete = useCallback((result: any) => {
-    try {
-      let newState = { ...gameState };
-      newState.combatLog.push(result);
+  const handleCombatComplete = useCallback(
+    (result: any) => {
+      try {
+        let newState = { ...gameState };
+        newState.combatLog.push(result);
 
-      // Apply damage
-      if (result.damage > 0) {
-        if (result.result === 'miss' && selectedUnit) {
-          // Attacker takes damage on miss (melee counterattack only)
+        // Apply damage
+        if (result.damage > 0) {
+          if (result.result === "miss" && selectedUnit) {
+            // Attacker takes damage on miss (melee counterattack only)
+            newState.units[selectedUnit.id] = {
+              ...selectedUnit,
+              currentHp: Math.max(0, selectedUnit.currentHp - result.damage),
+            };
+          } else if (combatTarget && result.result !== "miss") {
+            // Defender takes damage on hit/massive-hit
+            newState.units[combatTarget.id] = {
+              ...combatTarget,
+              currentHp: Math.max(0, combatTarget.currentHp - result.damage),
+            };
+          }
+        }
+
+        // Apply morale tokens
+        if (result.moraleGained > 0 && result.result === "tie" && selectedUnit && combatTarget) {
           newState.units[selectedUnit.id] = {
-            ...selectedUnit,
-            currentHp: Math.max(0, selectedUnit.currentHp - result.damage)
+            ...newState.units[selectedUnit.id],
+            moraleTokens: newState.units[selectedUnit.id].moraleTokens + 1,
           };
-        } else if (combatTarget && result.result !== 'miss') {
-          // Defender takes damage on hit/massive-hit
           newState.units[combatTarget.id] = {
-            ...combatTarget,
-            currentHp: Math.max(0, combatTarget.currentHp - result.damage)
+            ...newState.units[combatTarget.id],
+            moraleTokens: newState.units[combatTarget.id].moraleTokens + 1,
           };
         }
+
+        // Mark attacker as activated and consume activation
+        if (selectedUnit) {
+          newState.units[selectedUnit.id] = {
+            ...newState.units[selectedUnit.id],
+            activated: true,
+          };
+        }
+
+        newState.activationsRemaining = Math.max(0, newState.activationsRemaining - 1);
+
+        // Clean up dead units
+        newState = EnhancedGameManager.removeDeadUnits(newState);
+
+        onGameStateChange(newState);
+        setShowSideCombat(false);
+        setCombatTarget(null);
+        setSelectedUnit(null);
+        setActionMode("select");
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Combat failed");
+        setShowSideCombat(false);
       }
-
-      // Apply morale tokens
-      if (result.moraleGained > 0 && result.result === 'tie' && selectedUnit && combatTarget) {
-        newState.units[selectedUnit.id] = {
-          ...newState.units[selectedUnit.id],
-          moraleTokens: newState.units[selectedUnit.id].moraleTokens + 1
-        };
-        newState.units[combatTarget.id] = {
-          ...newState.units[combatTarget.id],
-          moraleTokens: newState.units[combatTarget.id].moraleTokens + 1
-        };
-      }
-
-      // Mark attacker as activated and consume activation
-      if (selectedUnit) {
-        newState.units[selectedUnit.id] = {
-          ...newState.units[selectedUnit.id],
-          activated: true
-        };
-      }
-
-      newState.activationsRemaining = Math.max(0, newState.activationsRemaining - 1);
-
-      // Clean up dead units
-      newState = EnhancedGameManager.removeDeadUnits(newState);
-
-      onGameStateChange(newState);
-      setShowSideCombat(false);
-      setCombatTarget(null);
-      setSelectedUnit(null);
-      setActionMode('select');
-      
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Combat failed');
-      setShowSideCombat(false);
-    }
-  }, [gameState, selectedUnit, combatTarget, onGameStateChange]);
+    },
+    [gameState, selectedUnit, combatTarget, onGameStateChange]
+  );
 
   const handleEndTurn = useCallback(() => {
     try {
       const newState = EnhancedGameManager.endTurnEnhanced(gameState);
       onGameStateChange(newState);
       setSelectedUnit(null);
-      setActionMode('select');
+      setActionMode("select");
       setShowAttackRange(false);
       setMoveHistory([]); // Clear move history on turn end
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to end turn');
+      setError(error instanceof Error ? error.message : "Failed to end turn");
     }
   }, [gameState, onGameStateChange]);
 
   const handleStartBattle = useCallback(() => {
-    if (gameState.currentPhase === 'deployment' && bothPlayersReady && onStartBattle) {
+    if (gameState.currentPhase === "deployment" && bothPlayersReady && onStartBattle) {
       try {
         onStartBattle();
-        GameLogger.log('STATE_CHANGE', 'Battle phase started');
+        GameLogger.log("STATE_CHANGE", "Battle phase started");
       } catch (error) {
-        setError(error instanceof Error ? error.message : 'Failed to start battle');
+        setError(error instanceof Error ? error.message : "Failed to start battle");
       }
     }
   }, [gameState.currentPhase, bothPlayersReady, onStartBattle]);
@@ -493,9 +478,9 @@ export function EnhancedImmersiveGameInterface({
   const selectUnitForAction = useCallback((unit: Unit, mode: ActionMode) => {
     setSelectedUnit(unit);
     setActionMode(mode);
-    setShowAttackRange(mode === 'move_attack');
-    setError('');
-    GameLogger.log('ACTION', 'Unit selected for action', { unitId: unit.id, mode });
+    setShowAttackRange(mode === "move_attack");
+    setError("");
+    GameLogger.log("ACTION", "Unit selected for action", { unitId: unit.id, mode });
   }, []);
 
   return (
@@ -503,15 +488,7 @@ export function EnhancedImmersiveGameInterface({
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
         {/* Hex Grid Background */}
         <div className="absolute inset-0 w-full h-full">
-          <HexGrid
-            gameState={gameState}
-            onHexClick={handleHexClick}
-            selectedPosition={selectedPosition}
-            highlightedPositions={validPositions}
-            attackRangePositions={showAttackRange ? attackRangePositions : []}
-
-            showOverlays={showOverlays}
-          />
+          <HexGrid gameState={gameState} onHexClick={handleHexClick} selectedPosition={selectedPosition} highlightedPositions={validPositions} attackRangePositions={showAttackRange ? attackRangePositions : []} showOverlays={showOverlays} />
         </div>
 
         {/* Top Left Status Bar - Hideable */}
@@ -523,71 +500,48 @@ export function EnhancedImmersiveGameInterface({
                   <div className="text-2xl font-bold text-amber-400">TOWERS</div>
                   <div className="text-sm text-amber-200">Turn {gameState.turn}</div>
                 </div>
-                
+
                 <div className="w-px h-12 bg-amber-500/30"></div>
-                
+
                 <div className="text-center">
-                  <div className={`text-xl font-bold ${gameState.currentPlayer === 'player1' ? 'text-red-400' : 'text-blue-400'}`}>
-                    {currentPlayer.name}
-                  </div>
-                  <div className="text-sm text-slate-300">
-                    {gameState.currentPhase === 'deployment' ? '🪖 Deploying' : '⚔️ Battle Phase'}
-                  </div>
+                  <div className={`text-xl font-bold ${gameState.currentPlayer === "player1" ? "text-red-400" : "text-blue-400"}`}>{currentPlayer.name}</div>
+                  <div className="text-sm text-slate-300">{gameState.currentPhase === "deployment" ? "🪖 Deploying" : "⚔️ Battle Phase"}</div>
                 </div>
-                
+
                 <div className="w-px h-12 bg-amber-500/30"></div>
-                
+
                 <div className="flex gap-3">
                   <div className="text-center bg-slate-700/50 rounded-lg px-3 py-1">
                     <div className="text-lg font-bold text-blue-400">{currentPlayer.cp}</div>
                     <div className="text-xs text-slate-300">CP</div>
                   </div>
-                  
-                  <div className={`text-center rounded-lg px-3 py-1 ${
-                    gameState.activationsRemaining > 0 ? 'bg-green-900/50' : 'bg-red-900/50'
-                  }`}>
-                    <div className={`text-lg font-bold ${
-                      gameState.activationsRemaining > 0 ? 'text-green-400' : 'text-red-400'
-                    }`}>
-                      {gameState.activationsRemaining}
-                    </div>
+
+                  <div className={`text-center rounded-lg px-3 py-1 ${gameState.activationsRemaining > 0 ? "bg-green-900/50" : "bg-red-900/50"}`}>
+                    <div className={`text-lg font-bold ${gameState.activationsRemaining > 0 ? "text-green-400" : "text-red-400"}`}>{gameState.activationsRemaining}</div>
                     <div className="text-xs text-slate-300">Acts</div>
                   </div>
-                  
+
                   <div className="text-center bg-purple-900/50 rounded-lg px-3 py-1">
-                    <div className="text-lg font-bold text-purple-400">{gameState.matchScore.player1}-{gameState.matchScore.player2}</div>
+                    <div className="text-lg font-bold text-purple-400">
+                      {gameState.matchScore.player1}-{gameState.matchScore.player2}
+                    </div>
                     <div className="text-xs text-slate-300">Score</div>
                   </div>
                 </div>
               </div>
-              
+
               {/* Dynamic Task Indicator */}
               <div className="mt-3 bg-slate-800/50 rounded-lg p-3">
                 <div className="flex items-center gap-2">
-                  <div className={`px-3 py-1 rounded-full text-sm font-semibold animate-pulse ${
-                    actionMode === 'select' ? 'bg-blue-600' :
-                    actionMode === 'move_attack' ? 'bg-green-600' :
-                    actionMode === 'deploy' ? 'bg-purple-600' : 'bg-gray-600'
-                  }`}>
-                    {actionMode === 'select' ? '👆 Select Unit' :
-                     actionMode === 'move_attack' ? '🎯 Move & Attack' :
-                     actionMode === 'deploy' ? '🪖 Deploying' : 'Unknown'}
-                  </div>
-                  
-                  <div className="text-amber-200 text-sm flex-1">
-                    {getCurrentTaskDescription()}
-                  </div>
+                  <div className={`px-3 py-1 rounded-full text-sm font-semibold animate-pulse ${actionMode === "select" ? "bg-blue-600" : actionMode === "move_attack" ? "bg-green-600" : actionMode === "deploy" ? "bg-purple-600" : "bg-gray-600"}`}>{actionMode === "select" ? "👆 Select Unit" : actionMode === "move_attack" ? "🎯 Move & Attack" : actionMode === "deploy" ? "🪖 Deploying" : "Unknown"}</div>
+
+                  <div className="text-amber-200 text-sm flex-1">{getCurrentTaskDescription()}</div>
                 </div>
               </div>
             </div>
-            
+
             {/* Hide/Show Toggle for Top Left */}
-            <Button
-              onClick={() => setShowTopLeftToolbar(false)}
-              size="sm"
-              className="mt-2 bg-slate-600/50 hover:bg-slate-500/50"
-              title="Hide Status Bar"
-            >
+            <Button onClick={() => setShowTopLeftToolbar(false)} size="sm" className="mt-2 bg-slate-600/50 hover:bg-slate-500/50" title="Hide Status Bar">
               <ChevronUp size={16} />
             </Button>
           </div>
@@ -595,12 +549,7 @@ export function EnhancedImmersiveGameInterface({
 
         {/* Show Top Left Toolbar Button */}
         {!showTopLeftToolbar && (
-          <Button
-            onClick={() => setShowTopLeftToolbar(true)}
-            size="sm"
-            className="absolute top-4 left-4 z-30 bg-slate-600/50 hover:bg-slate-500/50"
-            title="Show Status Bar"
-          >
+          <Button onClick={() => setShowTopLeftToolbar(true)} size="sm" className="absolute top-4 left-4 z-30 bg-slate-600/50 hover:bg-slate-500/50" title="Show Status Bar">
             <ChevronDown size={16} />
           </Button>
         )}
@@ -613,41 +562,31 @@ export function EnhancedImmersiveGameInterface({
                 <TooltipTrigger asChild>
                   <Button
                     onClick={() => {
-                      const centerEvent = new CustomEvent('centerMap');
+                      const centerEvent = new CustomEvent("centerMap");
                       window.dispatchEvent(centerEvent);
                     }}
                     size="sm"
-                    className="bg-amber-600 hover:bg-amber-700 transition-all"
-                  >
+                    className="bg-amber-600 hover:bg-amber-700 transition-all">
                     <Home size={16} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Center Map</TooltipContent>
               </Tooltip>
-              
+
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => setShowOverlays(!showOverlays)}
-                    size="sm"
-                    variant="outline"
-                    className="border-slate-500 bg-slate-700/50 hover:bg-slate-600/50"
-                  >
+                  <Button onClick={() => setShowOverlays(!showOverlays)} size="sm" variant="outline" className="border-slate-500 bg-slate-700/50 hover:bg-slate-600/50">
                     {showOverlays ? <Eye size={16} /> : <EyeOff size={16} />}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{showOverlays ? 'Hide Overlays' : 'Show Overlays'}</TooltipContent>
+                <TooltipContent>{showOverlays ? "Hide Overlays" : "Show Overlays"}</TooltipContent>
               </Tooltip>
 
               {/* Switch Player Button */}
-              {gameState.currentPhase === 'deployment' && switchPlayer && (
+              {gameState.currentPhase === "deployment" && switchPlayer && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      onClick={switchPlayer}
-                      size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 transition-all"
-                    >
+                    <Button onClick={switchPlayer} size="sm" className="bg-blue-600 hover:bg-blue-700 transition-all">
                       <Users size={16} className="mr-1" />
                       Switch
                     </Button>
@@ -655,54 +594,37 @@ export function EnhancedImmersiveGameInterface({
                   <TooltipContent>Switch to other player for deployment</TooltipContent>
                 </Tooltip>
               )}
-              
+
               {/* Start Battle Button */}
-              {gameState.currentPhase === 'deployment' && (
+              {gameState.currentPhase === "deployment" && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      onClick={handleStartBattle}
-                      disabled={!bothPlayersReady}
-                      size="sm"
-                      className={`font-bold transition-all ${
-                        bothPlayersReady 
-                          ? 'bg-green-600 hover:bg-green-700 animate-pulse' 
-                          : 'bg-gray-600 cursor-not-allowed opacity-50'
-                      }`}
-                    >
+                    <Button onClick={handleStartBattle} disabled={!bothPlayersReady} size="sm" className={`font-bold transition-all ${bothPlayersReady ? "bg-green-600 hover:bg-green-700 animate-pulse" : "bg-gray-600 cursor-not-allowed opacity-50"}`}>
                       <Play size={16} className="mr-1" />
                       Start
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>{bothPlayersReady ? 'Start the battle!' : 'Both players must deploy at least one unit'}</TooltipContent>
+                  <TooltipContent>{bothPlayersReady ? "Start the battle!" : "Both players must deploy at least one unit"}</TooltipContent>
                 </Tooltip>
               )}
-              
-              {gameState.currentPhase === 'battle' && (
+
+              {gameState.currentPhase === "battle" && (
                 <>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        onClick={handleEndTurn}
-                        size="sm"
-                        className="bg-red-600 hover:bg-red-700 font-bold transition-all"
-                      >
+                      <Button onClick={handleEndTurn} size="sm" className="bg-red-600 hover:bg-red-700 font-bold transition-all">
                         <SkipForward size={16} className="mr-1" />
                         End Turn
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>End current turn</TooltipContent>
                   </Tooltip>
-                  
+
                   {/* Undo Move Button */}
                   {moveHistory.length > 0 && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button
-                          onClick={undoLastMove}
-                          size="sm"
-                          className="bg-yellow-600 hover:bg-yellow-700 transition-all"
-                        >
+                        <Button onClick={undoLastMove} size="sm" className="bg-yellow-600 hover:bg-yellow-700 transition-all">
                           <RotateCcw size={16} />
                         </Button>
                       </TooltipTrigger>
@@ -722,18 +644,21 @@ export function EnhancedImmersiveGameInterface({
               <Tabs defaultValue="actions" className="w-full">
                 <div className="flex items-center justify-between p-2 border-b border-slate-600">
                   <TabsList className="bg-slate-700/50 h-8">
-                    <TabsTrigger value="actions" className="text-xs">Actions</TabsTrigger>
-                    <TabsTrigger value="army" className="text-xs">Army</TabsTrigger>
-                    <TabsTrigger value="info" className="text-xs">Info</TabsTrigger>
-                    <TabsTrigger value="logs" className="text-xs">Logs</TabsTrigger>
+                    <TabsTrigger value="actions" className="text-xs">
+                      Actions
+                    </TabsTrigger>
+                    <TabsTrigger value="army" className="text-xs">
+                      Army
+                    </TabsTrigger>
+                    <TabsTrigger value="info" className="text-xs">
+                      Info
+                    </TabsTrigger>
+                    <TabsTrigger value="logs" className="text-xs">
+                      Logs
+                    </TabsTrigger>
                   </TabsList>
-                  
-                  <Button
-                    onClick={() => setShowBottomLeftToolbar(false)}
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 w-6 p-0"
-                  >
+
+                  <Button onClick={() => setShowBottomLeftToolbar(false)} size="sm" variant="ghost" className="h-6 w-6 p-0">
                     <ChevronLeft size={14} />
                   </Button>
                 </div>
@@ -742,82 +667,52 @@ export function EnhancedImmersiveGameInterface({
                   <TabsContent value="actions" className="mt-0 space-y-3">
                     <div className="space-y-2">
                       <h4 className="text-sm font-bold text-amber-400">Quick Actions</h4>
-                      
+
                       {/* Auto Deploy - Deployment Phase */}
-                      {gameState.currentPhase === 'deployment' && reserveUnits.length > 0 && (
-                        <Button
-                          onClick={autoDeployAll}
-                          className="w-full bg-purple-600 hover:bg-purple-700 transition-all"
-                          size="sm"
-                        >
+                      {gameState.currentPhase === "deployment" && reserveUnits.length > 0 && (
+                        <Button onClick={autoDeployAll} className="w-full bg-purple-600 hover:bg-purple-700 transition-all" size="sm">
                           <RefreshCw size={16} className="mr-2" />
                           Auto Deploy
                         </Button>
                       )}
-                      
+
                       {/* Auto AI Move - Battle Phase */}
-                      {gameState.currentPhase === 'battle' && gameState.activationsRemaining > 0 && (
-                        <Button
-                          onClick={performAutoAIMove}
-                          className="w-full bg-blue-600 hover:bg-blue-700 transition-all font-bold"
-                          size="sm"
-                        >
+                      {gameState.currentPhase === "battle" && gameState.activationsRemaining > 0 && (
+                        <Button onClick={performAutoAIMove} className="w-full bg-blue-600 hover:bg-blue-700 transition-all font-bold" size="sm">
                           <Cpu size={16} className="mr-2" />
                           Auto Next Move
                         </Button>
                       )}
-                      
+
                       {/* Unit Actions */}
                       {selectedUnit && (
                         <div className="space-y-2">
                           <h5 className="text-xs font-semibold text-slate-300">Selected Unit Actions</h5>
-                          
-                          {selectedUnit.isInReserves && gameState.currentPhase === 'deployment' && (
-                            <Button
-                              onClick={() => selectUnitForAction(selectedUnit, 'deploy')}
-                              className="w-full bg-green-600 hover:bg-green-700"
-                              size="sm"
-                              disabled={actionMode === 'deploy'}
-                            >
+
+                          {selectedUnit.isInReserves && gameState.currentPhase === "deployment" && (
+                            <Button onClick={() => selectUnitForAction(selectedUnit, "deploy")} className="w-full bg-green-600 hover:bg-green-700" size="sm" disabled={actionMode === "deploy"}>
                               <MapPin size={16} className="mr-2" />
                               Deploy Unit
                             </Button>
                           )}
-                          
-                          {selectedUnit.isDeployed && gameState.currentPhase === 'deployment' && (
-                            <Button
-                              onClick={() => handleUndeploy(selectedUnit.id)}
-                              className="w-full bg-orange-600 hover:bg-orange-700"
-                              size="sm"
-                            >
+
+                          {selectedUnit.isDeployed && gameState.currentPhase === "deployment" && (
+                            <Button onClick={() => handleUndeploy(selectedUnit.id)} className="w-full bg-orange-600 hover:bg-orange-700" size="sm">
                               <RotateCcw size={16} className="mr-2" />
                               Undeploy
                             </Button>
                           )}
-                          
-                          {selectedUnit.isDeployed && 
-                           gameState.currentPhase === 'battle' && 
-                           !selectedUnit.activated && 
-                           gameState.activationsRemaining > 0 && (
+
+                          {selectedUnit.isDeployed && gameState.currentPhase === "battle" && !selectedUnit.activated && gameState.activationsRemaining > 0 && (
                             <>
-                              <Button
-                                onClick={() => selectUnitForAction(selectedUnit, 'move_attack')}
-                                className="w-full bg-red-600 hover:bg-red-700"
-                                size="sm"
-                                disabled={actionMode === 'move_attack'}
-                              >
+                              <Button onClick={() => selectUnitForAction(selectedUnit, "move_attack")} className="w-full bg-red-600 hover:bg-red-700" size="sm" disabled={actionMode === "move_attack"}>
                                 <Sword size={16} className="mr-2" />
                                 Move & Attack
                               </Button>
-                              
-                              <Button
-                                onClick={() => setShowAttackRange(!showAttackRange)}
-                                className="w-full bg-yellow-600 hover:bg-yellow-700"
-                                size="sm"
-                                variant="outline"
-                              >
+
+                              <Button onClick={() => setShowAttackRange(!showAttackRange)} className="w-full bg-yellow-600 hover:bg-yellow-700" size="sm" variant="outline">
                                 <Target size={16} className="mr-2" />
-                                {showAttackRange ? 'Hide' : 'Show'} Range
+                                {showAttackRange ? "Hide" : "Show"} Range
                               </Button>
                             </>
                           )}
@@ -829,43 +724,33 @@ export function EnhancedImmersiveGameInterface({
                   <TabsContent value="army" className="mt-0">
                     <div className="space-y-3">
                       <h4 className="text-sm font-bold text-amber-400">Army Status</h4>
-                      
+
                       {/* Current Player's Units */}
                       <div className="space-y-2">
                         <div className="text-xs text-slate-300 flex justify-between">
                           <span>Deployed Units</span>
                           <span>{deployedUnits.length}</span>
                         </div>
-                        
+
                         {deployedUnits.map((unit) => {
                           const template = getUnitTemplate(unit.templateId);
                           return (
-                            <div
-                              key={unit.id}
-                              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${
-                                selectedUnit?.id === unit.id 
-                                  ? 'bg-blue-600/30 border border-blue-400' 
-                                  : 'bg-slate-700/30 hover:bg-slate-600/30'
-                              }`}
-                              onClick={() => setSelectedUnit(unit)}
-                            >
+                            <div key={unit.id} className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${selectedUnit?.id === unit.id ? "bg-blue-600/30 border border-blue-400" : "bg-slate-700/30 hover:bg-slate-600/30"}`} onClick={() => setSelectedUnit(unit)}>
                               <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${
-                                  unit.currentHp > 0 ? 
-                                    unit.activated ? 'bg-yellow-400' : 'bg-green-400' 
-                                    : 'bg-red-400'
-                                }`} />
-                                <span className="text-sm">{template?.name || 'Unknown'}</span>
+                                <div className={`w-2 h-2 rounded-full ${unit.currentHp > 0 ? (unit.activated ? "bg-yellow-400" : "bg-green-400") : "bg-red-400"}`} />
+                                <span className="text-sm">{template?.name || "Unknown"}</span>
                               </div>
                               <div className="flex items-center gap-1 text-xs">
                                 <Heart size={12} className="text-red-400" />
-                                <span>{unit.currentHp}/{template?.hp || 0}</span>
+                                <span>
+                                  {unit.currentHp}/{template?.hp || 0}
+                                </span>
                               </div>
                             </div>
                           );
                         })}
                       </div>
-                      
+
                       {/* Reserves */}
                       {showReserves && reserveUnits.length > 0 && (
                         <div className="space-y-2">
@@ -873,26 +758,16 @@ export function EnhancedImmersiveGameInterface({
                             <span>Reserves</span>
                             <span>{reserveUnits.length}</span>
                           </div>
-                          
+
                           {reserveUnits.map((unit) => {
                             const template = getUnitTemplate(unit.templateId);
                             return (
-                              <div
-                                key={unit.id}
-                                className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${
-                                  selectedUnit?.id === unit.id 
-                                    ? 'bg-purple-600/30 border border-purple-400' 
-                                    : 'bg-slate-700/30 hover:bg-slate-600/30'
-                                }`}
-                                onClick={() => setSelectedUnit(unit)}
-                              >
+                              <div key={unit.id} className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${selectedUnit?.id === unit.id ? "bg-purple-600/30 border border-purple-400" : "bg-slate-700/30 hover:bg-slate-600/30"}`} onClick={() => setSelectedUnit(unit)}>
                                 <div className="flex items-center gap-2">
                                   <MapPin size={12} className="text-purple-400" />
-                                  <span className="text-sm">{template?.name || 'Unknown'}</span>
+                                  <span className="text-sm">{template?.name || "Unknown"}</span>
                                 </div>
-                                <div className="text-xs text-slate-400">
-                                  Ready to Deploy
-                                </div>
+                                <div className="text-xs text-slate-400">Ready to Deploy</div>
                               </div>
                             );
                           })}
@@ -904,7 +779,7 @@ export function EnhancedImmersiveGameInterface({
                   <TabsContent value="info" className="mt-0">
                     <div className="space-y-3">
                       <h4 className="text-sm font-bold text-amber-400">Selected Unit Info</h4>
-                      
+
                       {selectedUnit ? (
                         <div className="space-y-2">
                           {(() => {
@@ -913,7 +788,7 @@ export function EnhancedImmersiveGameInterface({
                               <div className="space-y-2">
                                 <div className="text-lg font-bold text-white">{template.name}</div>
                                 <div className="text-sm text-slate-300">{template.type}</div>
-                                
+
                                 <div className="grid grid-cols-2 gap-2 text-sm">
                                   <div className="bg-slate-700/30 p-2 rounded">
                                     <div className="text-xs text-slate-400">Health</div>
@@ -921,41 +796,35 @@ export function EnhancedImmersiveGameInterface({
                                       {selectedUnit.currentHp}/{template.hp}
                                     </div>
                                   </div>
-                                  
+
                                   <div className="bg-slate-700/30 p-2 rounded">
                                     <div className="text-xs text-slate-400">Defense</div>
                                     <div className="text-blue-400 font-bold">{template.defense}</div>
                                   </div>
-                                  
+
                                   <div className="bg-slate-700/30 p-2 rounded">
                                     <div className="text-xs text-slate-400">Attack</div>
                                     <div className="text-red-400 font-bold">{template.melee}</div>
                                   </div>
-                                  
+
                                   <div className="bg-slate-700/30 p-2 rounded">
                                     <div className="text-xs text-slate-400">Move</div>
                                     <div className="text-green-400 font-bold">{template.move}</div>
                                   </div>
                                 </div>
-                                
+
                                 {template.keywords && template.keywords.length > 0 && (
                                   <div className="bg-amber-900/20 p-2 rounded">
                                     <div className="text-xs text-amber-300 font-semibold mb-1">Keywords</div>
-                                    <div className="text-xs text-amber-200">
-                                      {template.keywords.join(', ')}
-                                    </div>
+                                    <div className="text-xs text-amber-200">{template.keywords.join(", ")}</div>
                                   </div>
                                 )}
-                                
+
                                 <div className="flex gap-2 text-xs">
-                                  <Badge variant={selectedUnit.activated ? 'destructive' : 'default'}>
-                                    {selectedUnit.activated ? 'Activated' : 'Ready'}
-                                  </Badge>
-                                  
-                                  <Badge variant={selectedUnit.isDeployed ? 'default' : 'secondary'}>
-                                    {selectedUnit.isDeployed ? 'Deployed' : 'Reserves'}
-                                  </Badge>
-                                  
+                                  <Badge variant={selectedUnit.activated ? "destructive" : "default"}>{selectedUnit.activated ? "Activated" : "Ready"}</Badge>
+
+                                  <Badge variant={selectedUnit.isDeployed ? "default" : "secondary"}>{selectedUnit.isDeployed ? "Deployed" : "Reserves"}</Badge>
+
                                   {selectedUnit.moraleTokens > 0 && (
                                     <Badge variant="outline" className="text-purple-400">
                                       {selectedUnit.moraleTokens} Morale
@@ -977,31 +846,21 @@ export function EnhancedImmersiveGameInterface({
                   <TabsContent value="logs" className="mt-0">
                     <div className="space-y-3">
                       <h4 className="text-sm font-bold text-amber-400">Game Log</h4>
-                      
+
                       <div className="space-y-1 max-h-40 overflow-y-auto">
-                        {GameLogger.getLogs().slice(-10).map((log, index) => (
-                          <div key={index} className="text-xs p-1 rounded bg-slate-700/20">
-                            <span className="text-slate-400">[{log.timestamp}]</span>
-                            <span className={`ml-1 ${
-                              log.type === 'ERROR' ? 'text-red-400' :
-                              log.type === 'COMBAT' ? 'text-yellow-400' :
-                              log.type === 'DEPLOYMENT' ? 'text-green-400' :
-                              'text-slate-300'
-                            }`}>
-                              {log.message}
-                            </span>
-                          </div>
-                        ))}
+                        {GameLogger.getLogs()
+                          .slice(-10)
+                          .map((log, index) => (
+                            <div key={index} className="text-xs p-1 rounded bg-slate-700/20">
+                              <span className="text-slate-400">[{log.timestamp}]</span>
+                              <span className={`ml-1 ${log.type === "ERROR" ? "text-red-400" : log.type === "COMBAT" ? "text-yellow-400" : log.type === "DEPLOYMENT" ? "text-green-400" : "text-slate-300"}`}>{log.message}</span>
+                            </div>
+                          ))}
                       </div>
-                      
-                      <Button
-                        onClick={() => setShowLogs(!showLogs)}
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                      >
+
+                      <Button onClick={() => setShowLogs(!showLogs)} size="sm" variant="outline" className="w-full">
                         <List size={14} className="mr-2" />
-                        {showLogs ? 'Hide' : 'Show'} Detailed Logs
+                        {showLogs ? "Hide" : "Show"} Detailed Logs
                       </Button>
                     </div>
                   </TabsContent>
@@ -1013,12 +872,7 @@ export function EnhancedImmersiveGameInterface({
 
         {/* Show Bottom Left Toolbar Button */}
         {!showBottomLeftToolbar && (
-          <Button
-            onClick={() => setShowBottomLeftToolbar(true)}
-            size="sm"
-            className="absolute bottom-4 left-4 z-30 bg-slate-600/50 hover:bg-slate-500/50"
-            title="Show Toolbar"
-          >
+          <Button onClick={() => setShowBottomLeftToolbar(true)} size="sm" className="absolute bottom-4 left-4 z-30 bg-slate-600/50 hover:bg-slate-500/50" title="Show Toolbar">
             <ChevronRight size={16} />
           </Button>
         )}
@@ -1048,8 +902,6 @@ export function EnhancedImmersiveGameInterface({
             </div>
           </div>
         )}
-
-
       </div>
     </TooltipProvider>
   );

@@ -63,8 +63,8 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 ### Progress Tracking:
 
 - Features: 0/5 completed
-- Bugs: 1/8 completed
-- Overall Progress: 1/13 tasks completed (7.7%)
+- Bugs: 2/9 completed
+- Overall Progress: 2/14 tasks completed (14.3%)
 
 ---
 
@@ -97,4 +97,4 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 - [ ] B6 - Auto-start deploy action when tapping unit in army tab during deployment
 - [ ] B7 - Remove show range button from the actions menu
 - [ ] B8 - Game not ending when one army has no units left
-- [ ] B9 - Units are unable to attack
+- [x] B9 - Units are unable to attack
