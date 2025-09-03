@@ -111,12 +111,24 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
   };
 
   return (
-    <Card className="bg-slate-800/95 backdrop-blur-md border-slate-600 w-full h-full shadow-2xl overflow-hidden">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-amber-400 text-center text-2xl">⚔️ Combat Resolution</CardTitle>
+    <div className="relative w-full h-full bg-slate-800/95 backdrop-blur-md border border-slate-600 rounded-lg shadow-2xl flex flex-col">
+      {/* Close Button - Small X in top left */}
+      <button
+        onClick={onCancel}
+        className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full bg-slate-700/80 hover:bg-slate-600/80 flex items-center justify-center text-slate-300 hover:text-white transition-colors"
+        title="Close combat menu"
+      >
+        ✕
+      </button>
+
+      {/* Header */}
+      <div className="flex-shrink-0 pt-8 pb-3 px-6">
+        <h2 className="text-amber-400 text-center text-2xl font-bold">⚔️ Combat Resolution</h2>
         <p className="text-slate-300 text-sm text-center">{isRanged ? "🏹 Ranged Attack" : "⚔️ Melee Combat"}</p>
-      </CardHeader>
-      <CardContent className="space-y-4 overflow-auto max-h-[calc(100vh-8rem)]">
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto px-6 pb-20 space-y-4">{/* Added bottom padding for floating button */}
         {phase === "preview" && (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -173,14 +185,7 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button onClick={startCombat} className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 sm:px-8 py-3 text-sm sm:text-lg min-w-0 flex-1 sm:flex-none whitespace-normal sm:whitespace-nowrap">
-                <span className="break-words text-center">⚔️ ROLL FOR COMBAT!</span>
-              </Button>
-              <Button onClick={onCancel} variant="outline" className="border-slate-500 px-4 sm:px-8 py-3 min-w-0 flex-1 sm:flex-none">
-                Cancel
-              </Button>
-            </div>
+{/* Buttons moved to floating section */}
           </>
         )}
 
@@ -249,14 +254,33 @@ export function EnhancedDiceCombat({ attacker, defender, gameState, onCombatComp
               {combatResult.specialEffects.length > 0 && <div className="text-purple-400 mt-2">✨ {combatResult.specialEffects.join(", ")}</div>}
             </div>
 
-            <div className="text-center">
-              <Button onClick={completeCombat} className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 sm:px-8 py-3 text-sm sm:text-base min-w-0 w-full sm:w-auto">
-                Continue Game
-              </Button>
-            </div>
+            {/* Continue button moved to floating section for result phase */}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Floating Action Button */}
+      {phase === "preview" && (
+        <div className="absolute bottom-4 left-4 right-4 z-10">
+          <Button 
+            onClick={startCombat} 
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 text-lg shadow-lg"
+          >
+            ⚔️ ROLL FOR COMBAT!
+          </Button>
+        </div>
+      )}
+
+      {phase === "result" && combatResult && (
+        <div className="absolute bottom-4 left-4 right-4 z-10">
+          <Button 
+            onClick={completeCombat} 
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 text-lg shadow-lg"
+          >
+            Continue Game
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

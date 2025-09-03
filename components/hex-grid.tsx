@@ -15,6 +15,7 @@ interface HexGridProps {
   selectedPosition?: HexPosition | null;
   highlightedPositions?: HexPosition[];
   attackRangePositions?: HexPosition[];
+  movementRangePositions?: HexPosition[];
   onHexHover?: (position: HexPosition | null) => void;
   showOverlays?: boolean;
 }
@@ -34,7 +35,7 @@ const getHexSize = () => {
   return 70;                          // Desktop - larger for immersion
 };
 
-export function HexGrid({ gameState, onHexClick, selectedPosition, highlightedPositions = [], attackRangePositions = [], onHexHover, showOverlays = true }: HexGridProps) {
+export function HexGrid({ gameState, onHexClick, selectedPosition, highlightedPositions = [], attackRangePositions = [], movementRangePositions = [], onHexHover, showOverlays = true }: HexGridProps) {
   const [hexSize, setHexSize] = useState(60);
   const transformRef = useRef<ReactZoomPanPinchRef>(null);
   
@@ -103,6 +104,7 @@ export function HexGrid({ gameState, onHexClick, selectedPosition, highlightedPo
     const isSelected = selectedPosition && positionToKey(selectedPosition) === posKey;
     const isHighlighted = highlightedPositions.some(pos => positionToKey(pos) === posKey);
     const isInAttackRange = attackRangePositions.some(pos => positionToKey(pos) === posKey);
+    const isInMovementRange = movementRangePositions.some(pos => positionToKey(pos) === posKey);
     const isDeploymentZone = checkIsInDeploymentZone(position);
     
     // Enhanced hex colors and styling
@@ -116,6 +118,7 @@ export function HexGrid({ gameState, onHexClick, selectedPosition, highlightedPo
         return '#00FF88'; // Bright green for valid moves/actions
       }
       if (isInAttackRange) return '#FF8C42'; // Orange for attack range
+      if (isInMovementRange) return '#4A90E2'; // Blue for movement range
       
       let baseColor;
       switch (terrainId) {
@@ -146,6 +149,7 @@ export function HexGrid({ gameState, onHexClick, selectedPosition, highlightedPo
         return '#00CC66'; // Dark green for highlighted
       }
       if (isInAttackRange) return '#FF6600'; // Orange for attack range
+      if (isInMovementRange) return '#357ABD'; // Darker blue for movement range
       if (isDeploymentZone) return '#8FBC8F'; // Light green for deployment zones (very subtle)
       return '#2A3F2A'; // Dark green-gray for normal borders
     };
@@ -213,7 +217,7 @@ export function HexGrid({ gameState, onHexClick, selectedPosition, highlightedPo
         
         {/* Unit display with tooltip */}
         {unit && (
-          <g className="cursor-pointer">
+          <g className="cursor-pointer" onClick={() => onHexClick(position)}>
             <UnitTooltip unit={unit} gameState={gameState}>
               <g style={{ pointerEvents: 'all' }}>
                 <UnitHexDisplay unit={unit} x={centeredX} y={centeredY} isSelected={!!isSelected} hexSize={hexSize} />

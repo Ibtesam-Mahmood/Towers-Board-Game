@@ -60,12 +60,6 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 2. Reference the new requirement numbers in the task's "Requirements Impact" section
 3. Ensure the requirement is properly categorized in REQUIREMENTS.md
 
-### Progress Tracking:
-
-- Features: 0/5 completed
-- Bugs: 2/9 completed
-- Overall Progress: 2/14 tasks completed (14.3%)
-
 ---
 
 ## Notes
@@ -83,7 +77,7 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 - [ ] F2 - Improve rule page UX, making it more interactive
 - [ ] F3 - Advanced hover pop up system that displays all details about the entity being hovered on
 - [ ] F4 - Expand hover system to units and statuses
-- [ ] F5 - Auto-display movement/attack range on unit selection
+- [X] F5 - Auto-display movement/attack range on unit selection
 
 ---
 
@@ -97,4 +91,4 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 - [ ] B6 - Auto-start deploy action when tapping unit in army tab during deployment
 - [ ] B7 - Remove show range button from the actions menu
 - [ ] B8 - Game not ending when one army has no units left
-- [x] B9 - Units are unable to attack
+- [X] B9 - Units are unable to attack

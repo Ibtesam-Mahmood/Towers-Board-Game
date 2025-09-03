@@ -244,8 +244,15 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
     return attackTargets.map((target) => target.position).filter(Boolean) as HexPosition[];
   };
 
+  const getMovementRangePositions = (): HexPosition[] => {
+    if (!selectedUnit || !showAttackRange || !selectedUnit.position || selectedUnit.activated) return [];
+
+    return EnhancedGameManager.getValidMovementPositions(selectedUnit, gameState);
+  };
+
   const validPositions = getValidPositions();
   const attackRangePositions = getAttackRangePositions();
+  const movementRangePositions = getMovementRangePositions();
 
   const handleHexClick = useCallback(
     (position: HexPosition) => {
@@ -260,8 +267,12 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
           setSelectedUnit(clickedUnit);
           setSelectedPosition(position);
           setActionMode("select");
-          setShowAttackRange(false);
-          GameLogger.log("ACTION", "Selected own unit", { unitId: clickedUnit.id });
+          // Auto-display ranges for activatable units during battle phase
+          const shouldShowRanges = gameState.currentPhase === "battle" && 
+                                   !clickedUnit.activated && 
+                                   gameState.activationsRemaining > 0;
+          setShowAttackRange(shouldShowRanges);
+          GameLogger.log("ACTION", "Selected own unit", { unitId: clickedUnit.id, showRanges: shouldShowRanges });
         } else if (selectedUnit && !selectedUnit.activated && gameState.activationsRemaining > 0 && gameState.currentPhase === "battle") {
           // Allow combat if we have a selected unit during battle phase, regardless of action mode
           const validTargets = EnhancedGameManager.getValidAttackTargets(selectedUnit, gameState);
@@ -291,12 +302,14 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
           handleDeploy(selectedUnit.id, position);
         } else if (actionMode === "move_attack" && selectedUnit?.position && !selectedUnit.activated && gameState.activationsRemaining > 0) {
           handleMove(selectedUnit.id, position);
-        } else {
+        } else if (!showSideCombat) {
+          // Only clear selection if combat menu is not showing
           setSelectedPosition(position);
+          setSelectedUnit(null);
         }
       }
     },
-    [gameState, selectedUnit, actionMode]
+    [gameState, selectedUnit, actionMode, showSideCombat]
   );
 
   const handleDeploy = useCallback(
@@ -488,7 +501,15 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
         {/* Hex Grid Background */}
         <div className="absolute inset-0 w-full h-full">
-          <HexGrid gameState={gameState} onHexClick={handleHexClick} selectedPosition={selectedPosition} highlightedPositions={validPositions} attackRangePositions={showAttackRange ? attackRangePositions : []} showOverlays={showOverlays} />
+          <HexGrid 
+            gameState={gameState} 
+            onHexClick={handleHexClick} 
+            selectedPosition={selectedPosition} 
+            highlightedPositions={validPositions} 
+            attackRangePositions={showAttackRange ? attackRangePositions : []} 
+            movementRangePositions={showAttackRange ? movementRangePositions : []}
+            showOverlays={showOverlays} 
+          />
         </div>
 
         {/* Top Left Status Bar - Hideable */}
