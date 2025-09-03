@@ -37,6 +37,7 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
 
   // Enhanced UI State
   const [showTopLeftToolbar, setShowTopLeftToolbar] = useState(true);
+  const [showTopRightToolbar, setShowTopRightToolbar] = useState(true);
   const [showBottomLeftToolbar, setShowBottomLeftToolbar] = useState(true);
   const [showSideCombat, setShowSideCombat] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
@@ -575,95 +576,109 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
           </Button>
         )}
 
-        {/* Top Right Quick Controls */}
-        <div className="absolute top-4 right-4 z-30">
-          <div className="bg-black/70 backdrop-blur-md rounded-lg border border-amber-500/30 p-3 shadow-2xl">
-            <div className="flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => {
-                      const centerEvent = new CustomEvent("centerMap");
-                      window.dispatchEvent(centerEvent);
-                    }}
-                    size="sm"
-                    className="bg-amber-600 hover:bg-amber-700 transition-all">
-                    <Home size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Center Map</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={() => setShowOverlays(!showOverlays)} size="sm" variant="outline" className="border-slate-500 bg-slate-700/50 hover:bg-slate-600/50">
-                    {showOverlays ? <Eye size={16} /> : <EyeOff size={16} />}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{showOverlays ? "Hide Overlays" : "Show Overlays"}</TooltipContent>
-              </Tooltip>
-
-              {/* Switch Player Button */}
-              {gameState.currentPhase === "deployment" && switchPlayer && (
+        {/* Top Right Quick Controls - Hideable */}
+        {showTopRightToolbar && (
+          <div className="absolute top-4 right-4 z-30">
+            <div className="bg-black/70 backdrop-blur-md rounded-lg border border-amber-500/30 p-3 shadow-2xl">
+              <div className="flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={switchPlayer} size="sm" className="bg-blue-600 hover:bg-blue-700 transition-all">
-                      <Users size={16} className="mr-1" />
-                      Switch
+                    <Button
+                      onClick={() => {
+                        const centerEvent = new CustomEvent("centerMap");
+                        window.dispatchEvent(centerEvent);
+                      }}
+                      size="sm"
+                      className="bg-amber-600 hover:bg-amber-700 transition-all">
+                      <Home size={16} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Switch to other player for deployment</TooltipContent>
+                  <TooltipContent>Center Map</TooltipContent>
                 </Tooltip>
-              )}
 
-              {/* Start Battle Button */}
-              {gameState.currentPhase === "deployment" && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button onClick={handleStartBattle} disabled={!bothPlayersReady} size="sm" className={`font-bold transition-all ${bothPlayersReady ? "bg-green-600 hover:bg-green-700 animate-pulse" : "bg-gray-600 cursor-not-allowed opacity-50"}`}>
-                      <Play size={16} className="mr-1" />
-                      Start
+                    <Button onClick={() => setShowOverlays(!showOverlays)} size="sm" variant="outline" className="border-slate-500 bg-slate-700/50 hover:bg-slate-600/50">
+                      {showOverlays ? <Eye size={16} /> : <EyeOff size={16} />}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>{bothPlayersReady ? "Start the battle!" : "Both players must deploy at least one unit"}</TooltipContent>
+                  <TooltipContent>{showOverlays ? "Hide Overlays" : "Show Overlays"}</TooltipContent>
                 </Tooltip>
-              )}
 
-              {gameState.currentPhase === "battle" && (
-                <>
+                {/* Switch Player Button */}
+                {gameState.currentPhase === "deployment" && switchPlayer && (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button onClick={handleEndTurn} size="sm" className="bg-red-600 hover:bg-red-700 font-bold transition-all">
-                        <SkipForward size={16} className="mr-1" />
-                        End Turn
+                      <Button onClick={switchPlayer} size="sm" className="bg-blue-600 hover:bg-blue-700 transition-all">
+                        <Users size={16} className="mr-1" />
+                        Switch
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>End current turn</TooltipContent>
+                    <TooltipContent>Switch to other player for deployment</TooltipContent>
                   </Tooltip>
+                )}
 
-                  {/* Undo Move Button */}
-                  {moveHistory.length > 0 && (
+                {/* Start Battle Button */}
+                {gameState.currentPhase === "deployment" && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button onClick={handleStartBattle} disabled={!bothPlayersReady} size="sm" className={`font-bold transition-all ${bothPlayersReady ? "bg-green-600 hover:bg-green-700 animate-pulse" : "bg-gray-600 cursor-not-allowed opacity-50"}`}>
+                        <Play size={16} className="mr-1" />
+                        Start
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{bothPlayersReady ? "Start the battle!" : "Both players must deploy at least one unit"}</TooltipContent>
+                  </Tooltip>
+                )}
+
+                {gameState.currentPhase === "battle" && (
+                  <>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button onClick={undoLastMove} size="sm" className="bg-yellow-600 hover:bg-yellow-700 transition-all">
-                          <RotateCcw size={16} />
+                        <Button onClick={handleEndTurn} size="sm" className="bg-red-600 hover:bg-red-700 font-bold transition-all">
+                          <SkipForward size={16} className="mr-1" />
+                          End Turn
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>Undo last movement</TooltipContent>
+                      <TooltipContent>End current turn</TooltipContent>
                     </Tooltip>
-                  )}
-                </>
-              )}
+
+                    {/* Undo Move Button */}
+                    {moveHistory.length > 0 && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button onClick={undoLastMove} size="sm" className="bg-yellow-600 hover:bg-yellow-700 transition-all">
+                            <RotateCcw size={16} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Undo last movement</TooltipContent>
+                      </Tooltip>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
+
+            {/* Hide/Show Toggle for Top Right */}
+            <Button onClick={() => setShowTopRightToolbar(false)} size="sm" className="mt-2 bg-slate-600/50 hover:bg-slate-500/50" title="Hide Quick Controls">
+              <ChevronUp size={16} />
+            </Button>
           </div>
-        </div>
+        )}
+
+        {/* Show Top Right Toolbar Button */}
+        {!showTopRightToolbar && (
+          <Button onClick={() => setShowTopRightToolbar(true)} size="sm" className="absolute top-4 right-4 z-30 bg-slate-600/50 hover:bg-slate-500/50" title="Show Quick Controls">
+            <ChevronDown size={16} />
+          </Button>
+        )}
 
         {/* Bottom Left Toolbar - New Position for Main Actions */}
         {showBottomLeftToolbar && (
           <div className="absolute bottom-4 left-4 z-30 max-w-md">
             <div className="bg-black/70 backdrop-blur-md rounded-lg border border-amber-500/30 shadow-2xl">
               <Tabs defaultValue="actions" className="w-full">
-                <div className="flex items-center justify-between p-2 border-b border-slate-600">
+                <div className="flex items-center justify-center p-2 border-b border-slate-600">
                   <TabsList className="bg-slate-700/50 h-8">
                     <TabsTrigger value="actions" className="text-xs">
                       Actions
@@ -678,10 +693,6 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
                       Logs
                     </TabsTrigger>
                   </TabsList>
-
-                  <Button onClick={() => setShowBottomLeftToolbar(false)} size="sm" variant="ghost" className="h-6 w-6 p-0">
-                    <ChevronLeft size={14} />
-                  </Button>
                 </div>
 
                 <div className="p-4 max-h-96 overflow-y-auto">
@@ -888,6 +899,11 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
                 </div>
               </Tabs>
             </div>
+
+            {/* Hide/Show Toggle for Bottom Left */}
+            <Button onClick={() => setShowBottomLeftToolbar(false)} size="sm" className="mt-2 bg-slate-600/50 hover:bg-slate-500/50" title="Hide Toolbar">
+              <ChevronLeft size={16} />
+            </Button>
           </div>
         )}
 
