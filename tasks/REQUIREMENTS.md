@@ -664,9 +664,9 @@ This document contains the comprehensive requirements specification for the TOWE
 
 **STATUS**: Requirements 1.0 through 23.2.5 have been FULLY IMPLEMENTED and are operational in the current system. Requirements 24.0 and 25.0 are NEW requirements added to support enhanced user experience and interface improvements.
 
-**TOTAL REQUIREMENTS**: 321 numbered requirements across 25 major functional areas.
+**TOTAL REQUIREMENTS**: 325 numbered requirements across 25 major functional areas.
 
-**IMPLEMENTATION COVERAGE**: 92% - Requirements 1.0-23.2.5 and 24.5.1-24.5.13 implemented (300/321). Requirements 24.1-24.4 and 25.0 pending implementation (21 requirements).
+**IMPLEMENTATION COVERAGE**: 94% - Requirements 1.0-23.2.5, 24.4.6-24.4.9, and 24.5.1-24.5.13 implemented (304/325). Requirements 24.1-24.4.5 and 25.0 pending implementation (21 requirements).
 
 **TECHNICAL SCOPE**: 23,000+ lines of TypeScript code across 50+ files with complete type safety and production readiness.
 
@@ -725,6 +725,14 @@ This document contains the comprehensive requirements specification for the TOWE
 **24.4.4** The system SHALL remove redundant UI elements like manual range display buttons when automatic systems are active.
 
 **24.4.5** The system SHALL implement consistent hide/close button behavior across all game menus and dialogs.
+
+**24.4.6** The system SHALL automatically trigger deployment mode when selecting units from the army list during deployment phase.
+
+**24.4.7** The system SHALL default to the army tab during deployment phase and actions tab during battle phase for optimal user workflow.
+
+**24.4.8** The system SHALL remove redundant deployment action buttons from the actions tab when auto-deployment from army tab is available.
+
+**24.4.9** The system SHALL automatically reset the bottom-left menu tab to the appropriate default (army for deployment phase, actions for battle phase) when switching players or turns.
 
 ### 24.5 Floating Combat Overlay Requirements
 **24.5.1** The system SHALL implement a floating combat overlay positioned in the bottom-right corner of the screen for dice rolling display.

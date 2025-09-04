@@ -50,6 +50,7 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
   const [showArmy, setShowArmy] = useState(true);
   const [moveHistory, setMoveHistory] = useState<Array<{ unitId: string; fromPosition: HexPosition; toPosition: HexPosition }>>([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>(gameState.currentPhase === "deployment" ? "army" : "actions");
 
   const currentPlayer = gameState.players[gameState.currentPlayer];
   const otherPlayer = gameState.players[gameState.currentPlayer === "player1" ? "player2" : "player1"];
@@ -82,7 +83,7 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
       if (selectedUnit?.isDeployed) {
         return "♻️ Unit deployed. You can undeploy it or select another unit.";
       }
-      return "🎯 Select a unit from reserves to deploy, or use Auto Deploy";
+      return "🎯 Select a unit from the Army tab to auto-deploy, or use Auto Deploy";
     }
 
     if (gameState.currentPhase === "battle") {
@@ -207,6 +208,17 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
       return () => clearTimeout(timer);
     }
   }, [error]);
+
+  // Reset active tab when player or phase changes
+  useEffect(() => {
+    const newActiveTab = gameState.currentPhase === "deployment" ? "army" : "actions";
+    setActiveTab(newActiveTab);
+    GameLogger.log("STATE_CHANGE", "Tab reset due to game state change", { 
+      phase: gameState.currentPhase, 
+      player: gameState.currentPlayer, 
+      newTab: newActiveTab 
+    });
+  }, [gameState.currentPlayer, gameState.currentPhase]);
 
   // Get valid positions based on current action mode
   const getValidPositions = (): HexPosition[] => {
@@ -718,7 +730,7 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
         {showBottomLeftToolbar && (
           <div className="absolute bottom-4 left-4 z-30 max-w-md">
             <div className="bg-black/70 backdrop-blur-md rounded-lg border border-amber-500/30 shadow-2xl">
-              <Tabs defaultValue="actions" className="w-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="flex items-center justify-center p-2 border-b border-slate-600">
                   <TabsList className="bg-slate-700/50 h-8">
                     <TabsTrigger value="actions" className="text-xs">
@@ -762,12 +774,7 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
                         <div className="space-y-2">
                           <h5 className="text-xs font-semibold text-slate-300">Selected Unit Actions</h5>
 
-                          {selectedUnit.isInReserves && gameState.currentPhase === "deployment" && (
-                            <Button onClick={() => selectUnitForAction(selectedUnit, "deploy")} className="w-full bg-green-600 hover:bg-green-700" size="sm" disabled={actionMode === "deploy"}>
-                              <MapPin size={16} className="mr-2" />
-                              Deploy Unit
-                            </Button>
-                          )}
+
 
                           {selectedUnit.isDeployed && gameState.currentPhase === "deployment" && (
                             <Button onClick={() => handleUndeploy(selectedUnit.id)} className="w-full bg-orange-600 hover:bg-orange-700" size="sm">
@@ -835,7 +842,14 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
                           {reserveUnits.map((unit) => {
                             const template = getUnitTemplate(unit.templateId);
                             return (
-                              <div key={unit.id} className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${selectedUnit?.id === unit.id ? "bg-purple-600/30 border border-purple-400" : "bg-slate-700/30 hover:bg-slate-600/30"}`} onClick={() => setSelectedUnit(unit)}>
+                              <div key={unit.id} className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${selectedUnit?.id === unit.id ? "bg-purple-600/30 border border-purple-400" : "bg-slate-700/30 hover:bg-slate-600/30"}`} onClick={() => {
+                                setSelectedUnit(unit);
+                                // Auto-trigger deployment mode during deployment phase
+                                if (gameState.currentPhase === "deployment" && currentPlayer.cp >= 1) {
+                                  setActionMode("deploy");
+                                  GameLogger.log("ACTION", "Auto-triggered deployment mode from army tab", { unitId: unit.id });
+                                }
+                              }}>
                                 <div className="flex items-center gap-2">
                                   <MapPin size={12} className="text-purple-400" />
                                   <span className="text-sm">{template?.name || "Unknown"}</span>

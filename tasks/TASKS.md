@@ -49,10 +49,9 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 1. Change status from `[~]` to `[X]`
 2. Mark all subtasks as `[X]`
 3. Fill in completion notes with:
-   - Completion date
+   - Root cause analysis
    - Summary of changes made
    - Any new requirements added to REQUIREMENTS.md
-   - Testing notes or validation performed
 
 ### When Adding New Requirements:
 
@@ -88,7 +87,7 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 - [X] B3 - Combat dice should appear in a small overlay in the corner and should not be obstructive
 - [X] B4 - Add a hide button in top right menu should be consistent with other menus
 - [X] B5 - Settings icon should be visible in top right menu
-- [ ] B6 - During deployment phase tapping on a unit should automatically show it's range
+- [X] B6 - During deployment phase tapping on a unit should automatically show it's range
 - [ ] B7 - Remove show range button from the actions menu
 - [ ] B8 - Game not ending when one army has no units left
 - [X] B9 - Units are unable to attack
