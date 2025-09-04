@@ -17,6 +17,7 @@ export function TowersGame() {
   const [currentArmyBuilder, setCurrentArmyBuilder] = useState<'player1' | 'player2' | null>(null);
   const [showTitleScreen, setShowTitleScreen] = useState(true);
   const [player1Army, setPlayer1Army] = useState<Army | null>(null);
+  const [player2Army, setPlayer2Army] = useState<Army | null>(null);
   const [tutorialEnabled, setTutorialEnabled] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
 
@@ -34,6 +35,7 @@ export function TowersGame() {
         setPlayer1Army(army);
         setCurrentArmyBuilder('player2');
       } else {
+        setPlayer2Army(army);
         // Both armies built, move to deployment
         const deploymentState = { ...newState };
         deploymentState.currentPhase = 'deployment';
@@ -46,20 +48,11 @@ export function TowersGame() {
   }, [gameState]);
 
   const handleGameStateChange = useCallback((newState: GameState) => {
-    // Check victory conditions before updating state
+    // Check victory conditions before updating state - Single Battle Format
     const victory = EnhancedGameManager.checkVictoryConditions(newState);
     if (victory.winner && newState.currentPhase !== 'match-end') {
-      // End the current skirmish/match
-      const finalState = { ...newState };
-      finalState.currentPhase = 'match-end';
-      
-      // Award point to winner
-      if (victory.winner === 'player1') {
-        finalState.matchScore.player1++;
-      } else {
-        finalState.matchScore.player2++;
-      }
-      
+      // End the game immediately
+      const finalState = EnhancedGameManager.endGame(newState, victory.winner);
       setGameState(finalState);
     } else {
       setGameState(newState);
@@ -94,6 +87,7 @@ export function TowersGame() {
     setGameState(createInitialGameState());
     setCurrentArmyBuilder('player1');
     setPlayer1Army(null);
+    setPlayer2Army(null);
     setShowTitleScreen(true);
     setTutorialEnabled(false);
     setTutorialStep(0);
@@ -151,22 +145,27 @@ export function TowersGame() {
     );
   }
 
-  // Match End
+  // Game End - Single Battle Format
   if (gameState.currentPhase === 'match-end') {
-    const winner = gameState.matchScore.player1 >= 2 ? 'Player 1' : 'Player 2';
+    // Determine winner from victory conditions
+    const victory = EnhancedGameManager.checkVictoryConditions(gameState);
+    const winner = victory.winner === 'player1' ? 'Player 1' : victory.winner === 'player2' ? 'Player 2' : 'Unknown';
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center">
         <Card className="bg-slate-800/50 border-slate-600 w-96">
           <CardHeader>
-            <CardTitle className="text-amber-400 text-center">Match Complete!</CardTitle>
+            <CardTitle className="text-amber-400 text-center">Game Complete!</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <div className="text-2xl font-bold text-white">
               {winner} Wins!
             </div>
             <div className="text-slate-300">
-              Final Score: {gameState.matchScore.player1} - {gameState.matchScore.player2}
+              {victory.reason}
+            </div>
+            <div className="text-sm text-slate-400">
+              Battle lasted {gameState.turn} turns
             </div>
             <Button onClick={resetGame} className="w-full">
               Play Again

@@ -19,12 +19,12 @@ const rulesSections = [
         <p>TOWERS is a 2-player tactical strategy game where you:</p>
         <ul className="list-disc list-inside space-y-2 ml-4">
           <li>Build custom armies from shared unit templates</li>
-          <li>Deploy forces on a hex-based battlefield</li>
-          <li>Win by taking 2 out of 3 skirmishes</li>
-          <li>Preserve units between battles for strategic advantage</li>
+          <li>Deploy initial forces, then reinforce during battle</li>
+          <li>Win by eliminating all enemy units</li>
+          <li>Deploy reserves as actions during your turn</li>
         </ul>
         <div className="bg-slate-700 p-4 rounded">
-          <strong>Key Concepts:</strong> Command Points (CP), Supply Lines, Morale, Terrain Effects
+          <strong>Key Concepts:</strong> Command Points (CP), Supply Lines, Morale, Terrain Effects, Reserve Deployment
         </div>
       </div>
     )
@@ -66,13 +66,17 @@ const rulesSections = [
             <strong>2. Take 3 Activations:</strong>
             <ul className="list-disc list-inside ml-4 mt-2">
               <li>Move & attack with a unit</li>
-              <li>Deploy from reserves</li>
+              <li>Deploy a unit from reserves (costs 1 activation)</li>
               <li>Play a Command Card (costs CP)</li>
             </ul>
           </div>
           <div className="bg-slate-700 p-3 rounded">
             <strong>3. End Turn:</strong> Check supply, morale
           </div>
+        </div>
+        <div className="bg-amber-800 p-4 rounded mt-4">
+          <strong>Reserve Deployment:</strong>
+          <p>During battle, you can deploy any unit from reserves as an action. This costs 1 activation and the unit is marked as activated.</p>
         </div>
       </div>
     )

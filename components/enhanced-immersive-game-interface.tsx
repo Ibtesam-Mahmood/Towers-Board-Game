@@ -61,8 +61,9 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
   // Check if both players are ready to start battle
   const bothPlayersReady = readyToStart ? readyToStart() : false;
 
-  // Hide reserves during battle phase
-  const showReserves = gameState.currentPhase === "deployment";
+  // Show reserves during both deployment and battle phases
+  // During battle, reserves can still be deployed using activations
+  const showReserves = gameState.currentPhase === "deployment" || gameState.currentPhase === "battle";
 
   // Enhanced task description based on current state
   const getCurrentTaskDescription = () => {
@@ -99,7 +100,19 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
         }
         return '⚔️ Unit ready for action. Click "Move & Attack" to begin.';
       }
+      if (selectedUnit?.isInReserves) {
+        return `🪖 Click on a deployment zone hex to deploy ${getUnitTemplate(selectedUnit.templateId)?.name} (costs 1 activation)`;
+      }
+      
+      // Check if player has no deployed units but has reserves
+      if (deployedUnits.length === 0 && reserveUnits.length > 0) {
+        return "🚨 All deployed units lost! Select a unit from reserves to deploy and continue fighting.";
+      }
+      
       if (deployedUnits.filter((u) => !u.activated && u.currentHp > 0).length === 0) {
+        if (reserveUnits.length > 0) {
+          return "😴 All deployed units activated. Deploy reserves or end turn.";
+        }
         return "😴 All units activated. End turn to continue.";
       }
       return "🎮 Select one of your active units to move or attack";
@@ -182,21 +195,16 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
     }
   }, [gameState, onGameStateChange, setMoveHistory]);
 
-  // Victory condition checking with proper game end
+  // Victory condition checking with proper game end - Single Battle Format
   useEffect(() => {
     const victory = EnhancedGameManager.checkVictoryConditions(gameState);
     if (victory.winner && gameState.currentPhase !== "match-end") {
-      const newState = { ...gameState };
-      newState.currentPhase = "match-end";
-
-      // Award point to winner
-      if (victory.winner === "player1") {
-        newState.matchScore.player1++;
-      } else if (victory.winner === "player2") {
-        newState.matchScore.player2++;
-      }
-
-      GameLogger.log("STATE_CHANGE", `Game ended: ${victory.winner} wins`, { reason: victory.reason });
+      // End the game immediately
+      const newState = EnhancedGameManager.endGame(gameState, victory.winner);
+      GameLogger.log("STATE_CHANGE", `Game ended: ${victory.winner} wins`, { 
+        reason: victory.reason,
+        totalTurns: newState.turn
+      });
       onGameStateChange(newState);
     }
   }, [gameState, onGameStateChange]);
@@ -559,9 +567,9 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
 
                   <div className="text-center bg-purple-900/50 rounded-lg px-3 py-1">
                     <div className="text-lg font-bold text-purple-400">
-                      {gameState.matchScore.player1}-{gameState.matchScore.player2}
+                      Turn {gameState.turn}
                     </div>
-                    <div className="text-xs text-slate-300">Score</div>
+                    <div className="text-xs text-slate-300">Battle</div>
                   </div>
                 </div>
               </div>
@@ -835,7 +843,7 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
                       {showReserves && reserveUnits.length > 0 && (
                         <div className="space-y-2">
                           <div className="text-xs text-slate-300 flex justify-between">
-                            <span>Reserves</span>
+                            <span>{gameState.currentPhase === "battle" ? "📦 Available Reserves" : "Reserves"}</span>
                             <span>{reserveUnits.length}</span>
                           </div>
 
@@ -844,17 +852,19 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
                             return (
                               <div key={unit.id} className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${selectedUnit?.id === unit.id ? "bg-purple-600/30 border border-purple-400" : "bg-slate-700/30 hover:bg-slate-600/30"}`} onClick={() => {
                                 setSelectedUnit(unit);
-                                // Auto-trigger deployment mode during deployment phase
-                                if (gameState.currentPhase === "deployment" && currentPlayer.cp >= 1) {
+                                // Auto-trigger deployment mode during deployment or battle phase
+                                if ((gameState.currentPhase === "deployment" || gameState.currentPhase === "battle") && currentPlayer.cp >= 1) {
                                   setActionMode("deploy");
-                                  GameLogger.log("ACTION", "Auto-triggered deployment mode from army tab", { unitId: unit.id });
+                                  GameLogger.log("ACTION", "Auto-triggered deployment mode from army tab", { unitId: unit.id, phase: gameState.currentPhase });
                                 }
                               }}>
                                 <div className="flex items-center gap-2">
                                   <MapPin size={12} className="text-purple-400" />
                                   <span className="text-sm">{template?.name || "Unknown"}</span>
                                 </div>
-                                <div className="text-xs text-slate-400">Ready to Deploy</div>
+                                <div className="text-xs text-slate-400">
+                                  {gameState.currentPhase === "battle" ? "Deploy (1 Act)" : "Ready to Deploy"}
+                                </div>
                               </div>
                             );
                           })}

@@ -1,6 +1,6 @@
 # TOWERS - Tactical Strategy Game
 
-A sophisticated web-based implementation of TOWERS, a symmetrical tactical-strategic wargame designed for two players. Build your army from a shared pool of unit templates and command cards, deploy onto a modular hex-based battlefield, and win the match by winning 2 out of 3 skirmishes.
+A sophisticated web-based implementation of TOWERS, a symmetrical tactical-strategic wargame designed for two players. Build your army from a shared pool of unit templates and command cards, deploy onto a modular hex-based battlefield, and win by eliminating all enemy units in a single decisive battle.
 
 ## 🎮 Game Overview
 
@@ -11,7 +11,7 @@ TOWERS is intentionally symmetric: both players have access to the same pool of 
 ### Core Game Features
 - **Hex-based tactical combat** on a modular battlefield
 - **Army building** with 100-point armies from shared unit pools
-- **Best-of-3 skirmish** match format with persistent unit survival
+- **Single decisive battle** format with reserve deployment
 - **Command Point (CP) economy** for tactical abilities and extra actions
 - **Supply line mechanics** affecting unit performance
 - **Morale system** with routing and retreat mechanics
@@ -40,16 +40,16 @@ TOWERS is intentionally symmetric: both players have access to the same pool of 
 ## 🎯 Game Rules Summary
 
 ### Victory Conditions
-- **Match Victory**: Win 2 out of 3 skirmishes
-- **Skirmish Victory**: Eliminate all enemy units or force opponent to concede
-- Units destroyed in a skirmish are permanently lost for the entire match
+- **Game Victory**: Eliminate all enemy units (both deployed and in reserves)
+- **Reserve Deployment**: Deploy units from reserves as actions during battle
+- **Single Battle Format**: One decisive engagement determines the winner
 
 ### Core Mechanics
 
 #### Turn Structure
 - Each turn, players receive **4 Command Points (CP)** (max 6 stored)
 - **3 activations per turn** (can buy more with CP)
-- Each activation allows: unit movement/attack, deployment, or command card play
+- Each activation allows: unit movement/attack, reserve deployment (costs 1 activation), or command card play
 
 #### Combat Resolution
 Uses dice + stats for balanced strategy and unpredictability:
@@ -178,19 +178,23 @@ Strategic one-use abilities that cost CP to play:
 ### Setup Phase
 1. **Army Building**: Each player builds a 100-point army from available units
 2. **Map Setup**: Place terrain tiles on the hex battlefield
-3. **Deployment**: Players alternate deploying up to 5 units in their deployment zones
+3. **Initial Deployment**: Players alternate deploying up to 5 units in their deployment zones
+4. **Reserves**: Remaining units stay in reserves for later deployment
 
 ### Battle Phase
 1. **Turn Start**: Gain 4 CP (max 6), reset unit activations
-2. **Activations**: Use 3 activations to move/attack units, deploy reserves, or play command cards
+2. **Activations**: Use 3 activations to:
+   - Move/attack with deployed units
+   - Deploy units from reserves (costs 1 activation)
+   - Play command cards (costs CP)
 3. **Combat**: Resolve attacks using dice + stats system
 4. **Supply Check**: Verify unit supply lines at turn end
 5. **Morale**: Check units with 3+ morale tokens
 
 ### Victory
-- Win 2 out of 3 skirmishes to win the match
-- Surviving units carry forward between skirmishes
-- Destroyed units are permanently lost
+- Eliminate all enemy units (deployed and in reserves) to win
+- Reserve units can be deployed throughout the battle
+- Single decisive engagement determines the winner
 
 ## 🛠️ Technical Stack
 
@@ -245,7 +249,7 @@ NEXTAUTH_URL="http://localhost:3000"
 - **Control key terrain** like hills and supply camps
 - **Maintain supply lines** to avoid combat penalties
 - **Use Command Points wisely** - they're limited but powerful
-- **Preserve units** between skirmishes for match advantage
+- **Manage reserves strategically** - deploy them when and where needed most
 
 ### Advanced Tactics
 - **Flanking** provides +2 attack bonus

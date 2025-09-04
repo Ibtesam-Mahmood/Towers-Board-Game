@@ -89,5 +89,5 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 - [X] B5 - Settings icon should be visible in top right menu
 - [X] B6 - During deployment phase tapping on a unit should automatically show it's range
 - [ ] B7 - Flashing complete army button
-- [ ] B8 - Game not ending when one army has no units left
+- [X] B8 - Game not ending when one army has no units left
 - [X] B9 - Units are unable to attack

@@ -531,12 +531,13 @@ export class EnhancedGameManager {
     }
   }
 
-  // Victory condition checking with logging
+  // Victory condition checking with logging - Single Battle Format
   static checkVictoryConditions(gameState: GameState): {
     winner: string | null;
     reason: string;
+    isGameEnd: boolean;
   } {
-    // Check during both deployment and battle phases
+    // Check during battle phase only (deployment phase should allow reserves)
     const player1AliveUnits = Object.values(gameState.units).filter(
       (unit) =>
         unit.playerId === "player1" &&
@@ -551,43 +552,77 @@ export class EnhancedGameManager {
         unit.currentHp > 0
     );
 
-    // Check if either player has no alive units (only during battle phase)
+    // Debug logging for unit counts
+    GameLogger.log("DEBUG", "Victory condition check", {
+      phase: gameState.currentPhase,
+      player1AliveCount: player1AliveUnits.length,
+      player2AliveCount: player2AliveUnits.length,
+      player1Units: player1AliveUnits.map((u) => ({
+        id: u.id,
+        templateId: u.templateId,
+        isDeployed: u.isDeployed,
+        isInReserves: u.isInReserves,
+        currentHp: u.currentHp,
+      })),
+      player2Units: player2AliveUnits.map((u) => ({
+        id: u.id,
+        templateId: u.templateId,
+        isDeployed: u.isDeployed,
+        isInReserves: u.isInReserves,
+        currentHp: u.currentHp,
+      })),
+    });
+
+    // Check if either player has no alive units (during battle phase)
     if (gameState.currentPhase === "battle") {
       if (player1AliveUnits.length === 0 && player2AliveUnits.length > 0) {
-        GameLogger.log(
-          "STATE_CHANGE",
-          "Player 2 wins skirmish - Player 1 eliminated"
-        );
-        return { winner: "player2", reason: "Player 1 has no remaining units" };
+        GameLogger.log("STATE_CHANGE", "Player 2 wins - Player 1 eliminated");
+        return {
+          winner: "player2",
+          reason: "Player 1 has no remaining units",
+          isGameEnd: true,
+        };
       }
 
       if (player2AliveUnits.length === 0 && player1AliveUnits.length > 0) {
-        GameLogger.log(
-          "STATE_CHANGE",
-          "Player 1 wins skirmish - Player 2 eliminated"
-        );
-        return { winner: "player1", reason: "Player 2 has no remaining units" };
+        GameLogger.log("STATE_CHANGE", "Player 1 wins - Player 2 eliminated");
+        return {
+          winner: "player1",
+          reason: "Player 2 has no remaining units",
+          isGameEnd: true,
+        };
       }
     }
 
-    // Check if match is already won (2/3 skirmishes)
-    if (gameState.matchScore.player1 >= 2) {
-      GameLogger.log("STATE_CHANGE", "Player 1 wins match");
-      return { winner: "player1", reason: "Won 2/3 skirmishes" };
-    }
-
-    if (gameState.matchScore.player2 >= 2) {
-      GameLogger.log("STATE_CHANGE", "Player 2 wins match");
-      return { winner: "player2", reason: "Won 2/3 skirmishes" };
-    }
-
-    return { winner: null, reason: "" };
+    return {
+      winner: null,
+      reason: "",
+      isGameEnd: false,
+    };
   }
 
-  // Auto deployment functionality
+  // Game end handling - Single Battle Format
+  static endGame(gameState: GameState, winnerId: string): GameState {
+    GameLogger.log("STATE_CHANGE", `Game ended - ${winnerId} wins`);
+
+    const newState = { ...gameState };
+    newState.currentPhase = "match-end";
+
+    GameLogger.log("STATE_CHANGE", "Game completed", {
+      winner: winnerId,
+      totalTurns: newState.turn,
+    });
+
+    return newState;
+  }
+
+  // Auto deployment functionality - works in deployment and battle phases
   static autoDeployUnits(playerId: string, gameState: GameState): GameState {
-    if (gameState.currentPhase !== "deployment") {
-      throw new Error("Can only auto-deploy during deployment phase");
+    if (
+      gameState.currentPhase !== "deployment" &&
+      gameState.currentPhase !== "battle"
+    ) {
+      throw new Error("Can only auto-deploy during deployment or battle phase");
     }
 
     if (gameState.currentPlayer !== playerId) {

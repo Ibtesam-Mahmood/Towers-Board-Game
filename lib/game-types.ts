@@ -1,4 +1,3 @@
-
 // Core game data types for TOWERS board game
 export interface UnitTemplate {
   id: string;
@@ -53,19 +52,24 @@ export interface CommandCard {
   cpCost: number;
   description: string;
   effect: string;
-  timing: 'activation' | 'reaction' | 'anytime';
+  timing: "activation" | "reaction" | "anytime";
 }
 
 export interface GameState {
-  currentPhase: 'army-building' | 'deployment' | 'battle' | 'skirmish-end' | 'match-end';
+  currentPhase:
+    | "army-building"
+    | "deployment"
+    | "battle"
+    | "skirmish-end"
+    | "match-end";
   currentPlayer: string;
   turn: number;
   activationsRemaining: number;
-  
+
   // Match tracking
-  matchScore: { player1: number; player2: number };
+  // Single battle format - no match scoring needed
   currentSkirmish: number;
-  
+
   // Players
   players: {
     [key: string]: {
@@ -78,12 +82,12 @@ export interface GameState {
       maxDeployment: number;
     };
   };
-  
+
   // Board state
   boardSize: { width: number; height: number };
   terrain: { [key: string]: string }; // position key -> terrain type
   units: { [key: string]: Unit };
-  
+
   // Combat state
   combatLog: CombatResult[];
 }
@@ -96,7 +100,7 @@ export interface CombatResult {
   defenderValue: number;
   attackerRoll: number;
   defenderRoll: number;
-  result: 'massive-hit' | 'hit' | 'tie' | 'miss';
+  result: "massive-hit" | "hit" | "tie" | "miss";
   damage: number;
   moraleGained: number;
   specialEffects: string[];

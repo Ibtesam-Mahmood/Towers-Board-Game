@@ -5,13 +5,13 @@ This document contains the comprehensive requirements specification for the TOWE
 ## 1.0 GAME ARCHITECTURE REQUIREMENTS
 
 ### 1.1 Core Game State Management
-**1.1.1** The system SHALL implement a complete GameState interface supporting all game phases: army-building, deployment, battle, skirmish-end, and match-end.
+**1.1.1** The system SHALL implement a complete GameState interface supporting all game phases: army-building, deployment, battle, and match-end.
 
 **1.1.2** The system SHALL track player state including Command Points (CP), army lists, deployed units, and command cards for each player.
 
 **1.1.3** The system SHALL implement a turn-based system with current player tracking and activation management.
 
-**1.1.4** The system SHALL implement a match scoring system supporting best-of-3 skirmish tracking.
+**1.1.4** The system SHALL implement a single battle victory system with reserve deployment mechanics.
 
 **1.1.5** The system SHALL manage board state including hex grid positioning and terrain mapping.
 
@@ -189,7 +189,7 @@ This document contains the comprehensive requirements specification for the TOWE
 
 **6.1.2** The system SHALL allow CP carryover: unspent CP carries over between turns up to cap.
 
-**6.1.3** The system SHALL allow extra activations: 1 CP = +1 activation beyond base 3 per turn.
+**6.1.3** The system SHALL allow extra activations: 1 CP = +1 activation beyond base 3 per turn, including reserve deployment actions.
 
 **6.1.4** The system SHALL implement command card costs: each card has specific CP cost (typically 1-4 CP).
 
@@ -290,29 +290,29 @@ This document contains the comprehensive requirements specification for the TOWE
 
 **9.2.5** The system SHALL implement fair deployment: alternating deployment with equal deployment zones.
 
-## 10.0 MATCH STRUCTURE REQUIREMENTS
+## 10.0 SINGLE BATTLE STRUCTURE REQUIREMENTS
 
-### 10.1 Best-of-3 Format Requirements
-**10.1.1** The system SHALL implement match scoring: first to win 2 skirmishes wins the match.
+### 10.1 Single Battle Format Requirements
+**10.1.1** The system SHALL implement single battle victory: eliminate all enemy units to win.
 
-**10.1.2** The system SHALL implement unit persistence: surviving units carry forward between skirmishes.
+**10.1.2** The system SHALL implement reserve deployment: units can be deployed from reserves during battle as actions.
 
-**10.1.3** The system SHALL implement permanent losses: destroyed units removed for entire match.
+**10.1.3** The system SHALL implement activation cost: deploying from reserves costs 1 activation.
 
-**10.1.4** The system SHALL implement reserve management: retreated units return for next skirmish.
+**10.1.4** The system SHALL implement deployment restrictions: reserve units deploy to deployment zones only.
 
-**10.1.5** The system SHALL implement victory tracking: real-time match score display and tracking.
+**10.1.5** The system SHALL implement immediate activation: units deployed from reserves are marked as activated.
 
-### 10.2 Skirmish Flow Requirements
+### 10.2 Battle Flow Requirements
 **10.2.1** The system SHALL implement army building phase: both players construct armies simultaneously.
 
 **10.2.2** The system SHALL implement deployment phase: alternating deployment of up to 5 units each.
 
-**10.2.3** The system SHALL implement battle phase: turn-based tactical combat with activations.
+**10.2.3** The system SHALL implement battle phase: turn-based tactical combat with activations and reserve deployment.
 
-**10.2.4** The system SHALL implement victory conditions: eliminate all enemy units or force concession.
+**10.2.4** The system SHALL implement victory conditions: eliminate all enemy units (deployed and in reserves).
 
-**10.2.5** The system SHALL implement post-skirmish cleanup: remove dead units, preserve survivors.
+**10.2.5** The system SHALL implement game end: immediate victory when opponent has no units remaining.
 
 ## 11.0 USER INTERFACE REQUIREMENTS
 
