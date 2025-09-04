@@ -161,7 +161,7 @@ export function ArmyBuilder({ onArmyComplete, playerId, playerName, player1Army 
               {selectedUnits.length > 0 && (
                 <Button
                   onClick={completeArmy}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 animate-pulse"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 ring-2 ring-green-400/50 shadow-green-500/25"
                   size="lg"
                 >
                   <span className="text-lg mr-2">✓</span>
@@ -339,9 +339,10 @@ export function ArmyBuilder({ onArmyComplete, playerId, playerName, player1Army 
                     <div className="pt-4 border-t border-amber-700">
                       <Button
                         onClick={completeArmy}
-                        className="w-full bg-green-600 hover:bg-green-700"
+                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold ring-2 ring-green-400/50 shadow-lg shadow-green-500/25 transition-all duration-200"
                         disabled={selectedUnits.length === 0}
                       >
+                        <span className="text-lg mr-2">✓</span>
                         Complete Army ({selectedUnits.length} units)
                       </Button>
                     </div>

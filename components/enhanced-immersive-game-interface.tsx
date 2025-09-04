@@ -720,10 +720,12 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
               </div>
             </div>
 
-            {/* Hide/Show Toggle for Top Right */}
-            <Button onClick={() => setShowTopRightToolbar(false)} size="sm" className="mt-2 bg-slate-600/50 hover:bg-slate-500/50" title="Hide Quick Controls">
-              <ChevronUp size={16} />
-            </Button>
+            {/* Hide/Show Toggle for Top Right - Positioned below the menu */}
+            <div className="flex justify-end mt-2">
+              <Button onClick={() => setShowTopRightToolbar(false)} size="sm" className="bg-slate-600/50 hover:bg-slate-500/50" title="Hide Quick Controls">
+                <ChevronUp size={16} />
+              </Button>
+            </div>
           </div>
         )}
 
@@ -736,7 +738,7 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
 
         {/* Bottom Left Toolbar - New Position for Main Actions */}
         {showBottomLeftToolbar && (
-          <div className="absolute bottom-4 left-4 z-30 max-w-md">
+          <div className="absolute bottom-4 left-4 z-30 max-w-md flex items-end">
             <div className="bg-black/70 backdrop-blur-md rounded-lg border border-amber-500/30 shadow-2xl">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="flex items-center justify-center p-2 border-b border-slate-600">
@@ -965,8 +967,8 @@ export function EnhancedImmersiveGameInterface({ gameState, onGameStateChange, s
               </Tabs>
             </div>
 
-            {/* Hide/Show Toggle for Bottom Left */}
-            <Button onClick={() => setShowBottomLeftToolbar(false)} size="sm" className="mt-2 bg-slate-600/50 hover:bg-slate-500/50" title="Hide Toolbar">
+            {/* Hide/Show Toggle for Bottom Left - Positioned at bottom right */}
+            <Button onClick={() => setShowBottomLeftToolbar(false)} size="sm" className="ml-2 mb-0 bg-slate-600/50 hover:bg-slate-500/50" title="Hide Toolbar">
               <ChevronLeft size={16} />
             </Button>
           </div>

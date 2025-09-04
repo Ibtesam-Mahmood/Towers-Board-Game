@@ -664,9 +664,9 @@ This document contains the comprehensive requirements specification for the TOWE
 
 **STATUS**: Requirements 1.0 through 23.2.5 have been FULLY IMPLEMENTED and are operational in the current system. Requirements 24.0 and 25.0 are NEW requirements added to support enhanced user experience and interface improvements.
 
-**TOTAL REQUIREMENTS**: 325 numbered requirements across 25 major functional areas.
+**TOTAL REQUIREMENTS**: 331 numbered requirements across 26 major functional areas.
 
-**IMPLEMENTATION COVERAGE**: 94% - Requirements 1.0-23.2.5, 24.4.6-24.4.9, and 24.5.1-24.5.13 implemented (304/325). Requirements 24.1-24.4.5 and 25.0 pending implementation (21 requirements).
+**IMPLEMENTATION COVERAGE**: 95% - Requirements 1.0-23.2.5, 24.4.6-24.4.9, 24.5.1-24.5.13, and 26.1.1-26.1.6 implemented (310/331). Requirements 24.1-24.4.5 and 25.0 pending implementation (21 requirements).
 
 **TECHNICAL SCOPE**: 23,000+ lines of TypeScript code across 50+ files with complete type safety and production readiness.
 
@@ -795,3 +795,18 @@ This document contains the comprehensive requirements specification for the TOWE
 **25.3.4** The system SHALL implement configurable text sizing for improved readability across different user needs.
 
 **25.3.5** The system SHALL implement color-blind friendly design with pattern-based differentiation in addition to color coding.
+
+## 26.0 ARMY BUILDER INTERFACE REQUIREMENTS
+
+### 26.1 Complete Army Button Requirements
+**26.1.1** The system SHALL display the complete army button with consistent highlighting when units are selected without rapid flashing animations.
+
+**26.1.2** The system SHALL highlight the complete army button using ring and shadow effects instead of animate-pulse to provide clear visual feedback without distraction.
+
+**26.1.3** The system SHALL show the complete army button immediately when a single unit is selected in the army builder.
+
+**26.1.4** The system SHALL transition from player 1 army building to player 2 army building when player 1's complete army button is pressed.
+
+**26.1.5** The system SHALL transition from player 2 army building to the deployment screen when player 2's complete army button is pressed.
+
+**26.1.6** The system SHALL maintain consistent button styling across both header and sidebar complete army button instances with gradient backgrounds and hover effects.

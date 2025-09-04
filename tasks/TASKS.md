@@ -88,6 +88,6 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 - [X] B4 - Add a hide button in top right menu should be consistent with other menus
 - [X] B5 - Settings icon should be visible in top right menu
 - [X] B6 - During deployment phase tapping on a unit should automatically show it's range
-- [ ] B7 - Flashing complete army button
+- [X] B7 - Flashing complete army button
 - [X] B8 - Game not ending when one army has no units left
 - [X] B9 - Units are unable to attack
