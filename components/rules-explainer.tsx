@@ -141,16 +141,25 @@ export function RulesExplainer({ onBack, onStartGame }: RulesExplainerProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-400 mb-2">TOWERS Rules</h1>
+    <div className="min-h-screen bg-gradient-to-br from-stormlight-smokestone-dark via-stormlight-smokestone to-stormlight-smokestone-dark text-stormlight-pure p-6 relative overflow-hidden">
+      {/* Atmospheric background effects */}
+      <div className="absolute inset-0 bg-gradient-radial from-stormlight-sapphire/5 via-transparent to-transparent opacity-50" />
+      <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-stormlight-topaz/5 rounded-full blur-3xl" />
+      
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="text-center mb-8 fade-in-up">
+          <h1 className="text-3xl md:text-4xl font-bold text-stormlight-topaz mb-2">
+            TOWERS - The Ways of War
+          </h1>
           <div className="flex justify-center gap-2 mb-4">
             {rulesSections.map((_, index) => (
               <Badge
                 key={index}
                 variant={index === currentSection ? "default" : "secondary"}
-                className={index === currentSection ? "bg-amber-600" : "bg-slate-600"}
+                className={index === currentSection ? 
+                  "bg-stormlight-topaz text-stormlight-smokestone-dark font-semibold" : 
+                  "bg-stormlight-smokestone-light text-stormlight-pure border border-stormlight-sapphire/30"
+                }
               >
                 {index + 1}
               </Badge>
@@ -158,24 +167,25 @@ export function RulesExplainer({ onBack, onStartGame }: RulesExplainerProps) {
           </div>
         </div>
 
-        <Card className="bg-slate-800/80 border-slate-600">
+        <Card className="bg-card/80 backdrop-blur-sm border-stormlight-sapphire/30 shadow-2xl scale-in">
           <CardHeader>
-            <CardTitle className="text-amber-400 text-2xl">
+            <CardTitle className="text-stormlight-topaz text-2xl md:text-3xl font-semibold">
               {rulesSections[currentSection].title}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-slate-100">
+          <CardContent className="text-stormlight-pure/90">
             {rulesSections[currentSection].content}
           </CardContent>
         </Card>
 
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
           <Button
             onClick={onBack}
             variant="outline"
-            className="border-slate-400 text-slate-400 hover:bg-slate-400 hover:text-slate-900"
+            className="border-2 border-stormlight-pure/40 text-stormlight-pure/80 hover:bg-stormlight-pure/10 hover:text-stormlight-pure menu-button focus:ring-2 focus:ring-stormlight-pure/40 focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
+            aria-label="Return to main menu"
           >
-            ← Back to Menu
+            ← Return to the Shattered Plains
           </Button>
           
           <div className="flex gap-4">
@@ -183,22 +193,25 @@ export function RulesExplainer({ onBack, onStartGame }: RulesExplainerProps) {
               onClick={prevSection}
               disabled={currentSection === 0}
               variant="outline"
-              className="border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-slate-900"
+              className="border-2 border-stormlight-topaz text-stormlight-topaz hover:bg-stormlight-topaz hover:text-stormlight-smokestone-dark disabled:opacity-50 disabled:cursor-not-allowed menu-button focus:ring-2 focus:ring-stormlight-topaz focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
+              aria-label="Previous section"
             >
-              Previous
+              ← Previous
             </Button>
             
             {currentSection === rulesSections.length - 1 ? (
               <Button
                 onClick={onStartGame}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-gradient-to-r from-stormlight-sapphire to-stormlight-sapphire-dark hover:from-stormlight-sapphire-light hover:to-stormlight-sapphire text-stormlight-pure menu-button stormlight-glow border border-stormlight-sapphire/50 focus:ring-2 focus:ring-stormlight-sapphire focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
+                aria-label="Begin the battle"
               >
-                Start Playing! 🎮
+                ⚔️ Begin the Conflict!
               </Button>
             ) : (
               <Button
                 onClick={nextSection}
-                className="bg-amber-600 hover:bg-amber-700"
+                className="bg-gradient-to-r from-stormlight-topaz to-stormlight-topaz-dark hover:from-stormlight-topaz-light hover:to-stormlight-topaz text-stormlight-smokestone-dark menu-button focus:ring-2 focus:ring-stormlight-topaz focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
+                aria-label="Next section"
               >
                 Next →
               </Button>

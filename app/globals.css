@@ -4,48 +4,50 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    /* Stormlight Archive themed color scheme */
+    --background: 217 19% 10%; /* Deep smokestone background */
+    --foreground: 0 0% 95%; /* Pure stormlight text */
+    --card: 217 19% 12%; /* Slightly lighter smokestone for cards */
+    --card-foreground: 0 0% 95%;
+    --popover: 217 19% 8%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 221 83% 53%; /* Sapphire blue */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 217 19% 20%; /* Lighter smokestone */
+    --secondary-foreground: 0 0% 95%;
+    --muted: 217 19% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 38 92% 50%; /* Topaz amber */
+    --accent-foreground: 217 19% 10%;
+    --destructive: 0 84% 60%; /* Ruby red */
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 19% 25%;
+    --input: 217 19% 18%;
+    --ring: 221 83% 53%;
+    --radius: 0.75rem; /* Slightly more rounded for elegance */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    /* Dark mode uses the same Stormlight theme */
+    --background: 217 19% 8%;
+    --foreground: 0 0% 98%;
+    --card: 217 19% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 217 19% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 221 83% 60%; /* Slightly brighter sapphire in dark mode */
+    --primary-foreground: 217 19% 8%;
+    --secondary: 217 19% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 217 19% 12%;
+    --muted-foreground: 215 20% 70%;
+    --accent: 38 92% 55%; /* Brighter topaz in dark mode */
+    --accent-foreground: 217 19% 8%;
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 19% 20%;
+    --input: 217 19% 15%;
+    --ring: 221 83% 60%;
   }
 }
 
@@ -102,6 +104,88 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Stormlight Archive themed animations */
+@keyframes stormlight-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3), 0 0 10px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.6), 0 0 20px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.2);
+  }
+}
+
+@keyframes topaz-shimmer {
+  0%, 100% {
+    background-position: -200% center;
+  }
+  50% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation classes */
+.stormlight-glow {
+  animation: stormlight-glow 2s ease-in-out infinite;
+}
+
+.topaz-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.4), transparent);
+  background-size: 200% 100%;
+  animation: topaz-shimmer 2s ease-in-out infinite;
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.scale-in {
+  animation: scale-in 0.4s ease-out forwards;
+}
+
+/* Enhanced menu styles */
+.menu-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.menu-button:hover::before {
+  left: 100%;
 }
 
 /* Scrollbar styles */

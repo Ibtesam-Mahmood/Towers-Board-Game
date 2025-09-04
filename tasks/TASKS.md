@@ -72,7 +72,7 @@ When a task introduces new functionality not covered in REQUIREMENTS.md:
 
 ## Features
 
-- [ ] F1 - Improve menu UX
+- [X] F1 - Improve menu UX
 - [ ] F2 - Improve rule page UX, making it more interactive
 - [ ] F3 - Advanced hover pop up system that displays all details about the entity being hovered on
 - [ ] F4 - Expand hover system to units and statuses
