@@ -5,6 +5,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { InteractiveCombatDemo } from './interactive-combat-demo';
+import { SearchableRules } from './searchable-rules';
+import { InteractiveUnitShowcase } from './interactive-unit-showcase';
+import { BookOpen, Gamepad2, Search, Users } from 'lucide-react';
 
 interface RulesExplainerProps {
   onBack: () => void;
@@ -50,6 +55,7 @@ const rulesSections = [
             Shardbearer (24 pts), Commander (20 pts)
           </div>
         </div>
+        <InteractiveUnitShowcase />
       </div>
     )
   },
@@ -103,6 +109,7 @@ const rulesSections = [
             <li>Lose: Attacker takes 1 HP</li>
           </ul>
         </div>
+        <InteractiveCombatDemo />
       </div>
     )
   },
@@ -127,6 +134,7 @@ const rulesSections = [
 
 export function RulesExplainer({ onBack, onStartGame }: RulesExplainerProps) {
   const [currentSection, setCurrentSection] = useState(0);
+  const [activeTab, setActiveTab] = useState('guided');
 
   const nextSection = () => {
     if (currentSection < rulesSections.length - 1) {
@@ -146,77 +154,183 @@ export function RulesExplainer({ onBack, onStartGame }: RulesExplainerProps) {
       <div className="absolute inset-0 bg-gradient-radial from-stormlight-sapphire/5 via-transparent to-transparent opacity-50" />
       <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-stormlight-topaz/5 rounded-full blur-3xl" />
       
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-8 fade-in-up">
-          <h1 className="text-3xl md:text-4xl font-bold text-stormlight-topaz mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-stormlight-topaz mb-4">
             TOWERS - The Ways of War
           </h1>
-          <div className="flex justify-center gap-2 mb-4">
-            {rulesSections.map((_, index) => (
-              <Badge
-                key={index}
-                variant={index === currentSection ? "default" : "secondary"}
-                className={index === currentSection ? 
-                  "bg-stormlight-topaz text-stormlight-smokestone-dark font-semibold" : 
-                  "bg-stormlight-smokestone-light text-stormlight-pure border border-stormlight-sapphire/30"
-                }
-              >
-                {index + 1}
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        <Card className="bg-card/80 backdrop-blur-sm border-stormlight-sapphire/30 shadow-2xl scale-in">
-          <CardHeader>
-            <CardTitle className="text-stormlight-topaz text-2xl md:text-3xl font-semibold">
-              {rulesSections[currentSection].title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-stormlight-pure/90">
-            {rulesSections[currentSection].content}
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
-          <Button
-            onClick={onBack}
-            variant="outline"
-            className="border-2 border-stormlight-pure/40 text-stormlight-pure/80 hover:bg-stormlight-pure/10 hover:text-stormlight-pure menu-button focus:ring-2 focus:ring-stormlight-pure/40 focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
-            aria-label="Return to main menu"
-          >
-            ← Return to the Shattered Plains
-          </Button>
           
-          <div className="flex gap-4">
-            <Button
-              onClick={prevSection}
-              disabled={currentSection === 0}
-              variant="outline"
-              className="border-2 border-stormlight-topaz text-stormlight-topaz hover:bg-stormlight-topaz hover:text-stormlight-smokestone-dark disabled:opacity-50 disabled:cursor-not-allowed menu-button focus:ring-2 focus:ring-stormlight-topaz focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
-              aria-label="Previous section"
-            >
-              ← Previous
-            </Button>
-            
-            {currentSection === rulesSections.length - 1 ? (
-              <Button
-                onClick={onStartGame}
-                className="bg-gradient-to-r from-stormlight-sapphire to-stormlight-sapphire-dark hover:from-stormlight-sapphire-light hover:to-stormlight-sapphire text-stormlight-pure menu-button stormlight-glow border border-stormlight-sapphire/50 focus:ring-2 focus:ring-stormlight-sapphire focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
-                aria-label="Begin the battle"
+          {/* Tab Navigation */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 bg-stormlight-smokestone-dark/50 border border-stormlight-sapphire/30">
+              <TabsTrigger 
+                value="guided" 
+                className="data-[state=active]:bg-stormlight-topaz data-[state=active]:text-stormlight-smokestone-dark flex items-center gap-2"
               >
-                ⚔️ Begin the Conflict!
-              </Button>
-            ) : (
-              <Button
-                onClick={nextSection}
-                className="bg-gradient-to-r from-stormlight-topaz to-stormlight-topaz-dark hover:from-stormlight-topaz-light hover:to-stormlight-topaz text-stormlight-smokestone-dark menu-button focus:ring-2 focus:ring-stormlight-topaz focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
-                aria-label="Next section"
+                <BookOpen size={16} />
+                Guided Tutorial
+              </TabsTrigger>
+              <TabsTrigger 
+                value="interactive" 
+                className="data-[state=active]:bg-stormlight-topaz data-[state=active]:text-stormlight-smokestone-dark flex items-center gap-2"
               >
-                Next →
-              </Button>
-            )}
-          </div>
+                <Gamepad2 size={16} />
+                Interactive Examples
+              </TabsTrigger>
+              <TabsTrigger 
+                value="reference" 
+                className="data-[state=active]:bg-stormlight-topaz data-[state=active]:text-stormlight-smokestone-dark flex items-center gap-2"
+              >
+                <Search size={16} />
+                Rule Reference
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Guided Tutorial Tab */}
+            <TabsContent value="guided" className="mt-6">
+              <div className="flex justify-center gap-2 mb-4">
+                {rulesSections.map((_, index) => (
+                  <Badge
+                    key={index}
+                    variant={index === currentSection ? "default" : "secondary"}
+                    className={`cursor-pointer transition-colors ${index === currentSection ? 
+                      "bg-stormlight-topaz text-stormlight-smokestone-dark font-semibold" : 
+                      "bg-stormlight-smokestone-light text-stormlight-pure border border-stormlight-sapphire/30 hover:bg-stormlight-smokestone"
+                    }`}
+                    onClick={() => setCurrentSection(index)}
+                  >
+                    {index + 1}
+                  </Badge>
+                ))}
+              </div>
+
+              <Card className="bg-card/80 backdrop-blur-sm border-stormlight-sapphire/30 shadow-2xl scale-in">
+                <CardHeader>
+                  <CardTitle className="text-stormlight-topaz text-2xl md:text-3xl font-semibold">
+                    {rulesSections[currentSection].title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-stormlight-pure/90">
+                  {rulesSections[currentSection].content}
+                </CardContent>
+              </Card>
+
+              <div className="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
+                <Button
+                  onClick={onBack}
+                  variant="outline"
+                  className="border-2 border-stormlight-pure/40 text-stormlight-pure/80 hover:bg-stormlight-pure/10 hover:text-stormlight-pure menu-button focus:ring-2 focus:ring-stormlight-pure/40 focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
+                  aria-label="Return to main menu"
+                >
+                  ← Return to the Shattered Plains
+                </Button>
+                
+                <div className="flex gap-4">
+                  <Button
+                    onClick={prevSection}
+                    disabled={currentSection === 0}
+                    variant="outline"
+                    className="border-2 border-stormlight-topaz text-stormlight-topaz hover:bg-stormlight-topaz hover:text-stormlight-smokestone-dark disabled:opacity-50 disabled:cursor-not-allowed menu-button focus:ring-2 focus:ring-stormlight-topaz focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
+                    aria-label="Previous section"
+                  >
+                    ← Previous
+                  </Button>
+                  
+                  {currentSection === rulesSections.length - 1 ? (
+                    <Button
+                      onClick={onStartGame}
+                      className="bg-gradient-to-r from-stormlight-sapphire to-stormlight-sapphire-dark hover:from-stormlight-sapphire-light hover:to-stormlight-sapphire text-stormlight-pure menu-button stormlight-glow border border-stormlight-sapphire/50 focus:ring-2 focus:ring-stormlight-sapphire focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
+                      aria-label="Begin the battle"
+                    >
+                      ⚔️ Begin the Conflict!
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={nextSection}
+                      className="bg-gradient-to-r from-stormlight-topaz to-stormlight-topaz-dark hover:from-stormlight-topaz-light hover:to-stormlight-topaz text-stormlight-smokestone-dark menu-button focus:ring-2 focus:ring-stormlight-topaz focus:ring-offset-2 focus:ring-offset-stormlight-smokestone-dark"
+                      aria-label="Next section"
+                    >
+                      Next →
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Interactive Examples Tab */}
+            <TabsContent value="interactive" className="mt-6">
+              <Card className="bg-card/80 backdrop-blur-sm border-stormlight-sapphire/30 shadow-2xl">
+                <CardHeader>
+                  <CardTitle className="text-stormlight-topaz text-2xl md:text-3xl font-semibold flex items-center gap-2">
+                    <Gamepad2 />
+                    Interactive Learning Center
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-stormlight-pure/90 space-y-6">
+                  <div className="bg-stormlight-smokestone-dark/30 p-4 rounded-lg border border-stormlight-sapphire/20">
+                    <h3 className="text-lg font-semibold text-stormlight-topaz mb-2">🎯 Learning Objectives</h3>
+                    <ul className="text-sm text-stormlight-pure/80 space-y-1">
+                      <li>• Experience combat mechanics hands-on with dice simulation</li>
+                      <li>• Compare unit statistics and build army strategies</li>
+                      <li>• Practice tactical thinking with interactive examples</li>
+                    </ul>
+                  </div>
+                  
+                  <InteractiveCombatDemo />
+                  <InteractiveUnitShowcase />
+                  
+                  <div className="flex justify-center">
+                    <Button
+                      onClick={onStartGame}
+                      className="bg-gradient-to-r from-stormlight-sapphire to-stormlight-sapphire-dark hover:from-stormlight-sapphire-light hover:to-stormlight-sapphire text-stormlight-pure menu-button stormlight-glow border border-stormlight-sapphire/50"
+                    >
+                      ⚔️ Ready for Battle!
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Rule Reference Tab */}
+            <TabsContent value="reference" className="mt-6">
+              <Card className="bg-card/80 backdrop-blur-sm border-stormlight-sapphire/30 shadow-2xl">
+                <CardHeader>
+                  <CardTitle className="text-stormlight-topaz text-2xl md:text-3xl font-semibold flex items-center gap-2">
+                    <Search />
+                    Quick Rule Reference
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-stormlight-pure/90">
+                  <div className="bg-stormlight-smokestone-dark/30 p-4 rounded-lg border border-stormlight-sapphire/20 mb-4">
+                    <h3 className="text-lg font-semibold text-stormlight-topaz mb-2">📚 How to Use</h3>
+                    <ul className="text-sm text-stormlight-pure/80 space-y-1">
+                      <li>• Search for specific rules, mechanics, or keywords</li>
+                      <li>• Filter by difficulty level or rule category</li>
+                      <li>• Click on any rule for detailed information</li>
+                    </ul>
+                  </div>
+                  
+                  <SearchableRules />
+                  
+                  <div className="flex justify-center mt-6">
+                    <Button
+                      onClick={() => setActiveTab('guided')}
+                      variant="outline"
+                      className="border-2 border-stormlight-topaz text-stormlight-topaz hover:bg-stormlight-topaz hover:text-stormlight-smokestone-dark mr-4"
+                    >
+                      ← Back to Tutorial
+                    </Button>
+                    <Button
+                      onClick={onStartGame}
+                      className="bg-gradient-to-r from-stormlight-sapphire to-stormlight-sapphire-dark hover:from-stormlight-sapphire-light hover:to-stormlight-sapphire text-stormlight-pure menu-button stormlight-glow border border-stormlight-sapphire/50"
+                    >
+                      ⚔️ Begin the Conflict!
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
